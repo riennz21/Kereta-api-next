@@ -1,0 +1,28 @@
+{% extends "admin/base.html" %}
+{% block title %}Status | KERETA.ID{% endblock %}
+{% block page_title %}Status Perjalanan{% endblock %}
+
+{% block content %}
+<section class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Kereta</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for s in data %}
+            <tr>
+                <td>{{ s["nama"] }}</td>
+                <td>
+                    <span class="badge {{ (s['status'] or '')|lower|replace(' ', '-') }}">
+                        {{ s["status"] }}
+                    </span>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

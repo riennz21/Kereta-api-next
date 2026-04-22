@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - TiketKAI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        header {
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            padding: 15px 0;
+        }
+
+        .navbar {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+
+        nav ul li {
+            margin: 0 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+            color: #666;
+            font-weight: 600;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px 60px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+            gap: 30px;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            text-align: left;
+            margin: 0 0 12px;
+            color: #1f2937;
+            font-size: 34px;
+        }
+
+        .hero p {
+            margin: 0 0 18px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+            padding: 24px;
+        }
+
+        .hero-card h3 {
+            margin: 0 0 6px;
+            font-size: 18px;
+            color: #111827;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 12px;
+            margin-top: 18px;
+        }
+
+        .stat-card {
+            background: #f9fafb;
+            padding: 16px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 26px;
+            font-weight: bold;
+            color: #f37021;
+            margin: 6px 0;
+        }
+
+        .stat-label {
+            color: #6b7280;
+            font-size: 12px;
+        }
+
+        .ticket-section {
+            margin-top: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .section-header h2 {
+            margin: 0 0 6px;
+            color: #1f2937;
+        }
+
+        .muted {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        .ticket-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ticket-card {
+            background: white;
+            border-radius: 14px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+            padding: 18px 20px;
+            display: grid;
+            grid-template-columns: auto auto minmax(0, 1fr) auto;
+            gap: 16px;
+            align-items: center;
+        }
+
+        .ticket-thumb {
+            width: 120px;
+            height: 86px;
+            border-radius: 12px;
+            object-fit: cover;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+            background: #e5e7eb;
+        }
+
+        .ticket-thumb.placeholder {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: #6b7280;
+        }
+
+        .ticket-index {
+            background: #fff7ed;
+            color: #c2410c;
+            border-radius: 10px;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: 13px;
+            min-width: 60px;
+            text-align: center;
+        }
+
+        .ticket-main h3 {
+            margin: 0 0 6px;
+            color: #111827;
+        }
+
+        .ticket-desc {
+            margin: 0 0 10px;
+            color: #6b7280;
+            font-size: 14px;
+        }
+
+        .ticket-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 13px;
+            color: #4b5563;
+        }
+
+        .ticket-side {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            align-items: flex-end;
+        }
+
+        .ticket-price {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .badge {
+            padding: 6px 10px;
+            border-radius: 999px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.on-time {
+            background: #16a34a;
+        }
+
+        .badge.delay {
+            background: #dc2626;
+        }
+
+        .badge.dibatalkan {
+            background: #6b7280;
+        }
+
+        .badge.unknown {
+            background: #111827;
+        }
+
+        .pagination {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .page-link {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            text-decoration: none;
+            color: #4b5563;
+            font-size: 13px;
+            background: white;
+        }
+
+        .page-link.active {
+            background: #f37021;
+            color: white;
+            border-color: #f37021;
+        }
+
+        .empty-message {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            color: #6b7280;
+        }
+
+        .btn {
+            background: #f37021;
+            color: white;
+            border: none;
+            padding: 10px 22px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-block;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #d94f15;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #f37021;
+            color: #f37021;
+        }
+
+        .btn-outline:hover {
+            background: #fff1e6;
+        }
+
+        .btn-small {
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+
+        @media (max-width: 900px) {
+            .hero {
+                grid-template-columns: 1fr;
+            }
+
+            .ticket-card {
+                grid-template-columns: 1fr;
+                text-align: left;
+            }
+
+            .ticket-side {
+                align-items: flex-start;
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="navbar">
+            <div class="logo">
+                <h2>TiketKAI</h2>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="/">HOME</a></li>
+                    <li><a href="/kereta">DATA KERETA</a></li>
+                    <li><a href="/jadwal">JADWAL</a></li>
+                    <li><a href="/status">STATUS</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- Search and Filter Form -->
+        <div style="margin: 20px 0;">
+            <form method="GET" action="/" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center;">
+                <input type="text" name="search" placeholder="Cari berdasarkan nama, asal, tujuan..."
+                       value="{{ search_query or '' }}"
+                       style="padding: 12px; width: 250px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+
+                <select name="kelas" style="padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+                    <option value="">Semua Kelas</option>
+                    <option value="Ekonomi" {% if request.args.get('kelas') == 'Ekonomi' %}selected{% endif %}>Ekonomi</option>
+                    <option value="Bisnis" {% if request.args.get('kelas') == 'Bisnis' %}selected{% endif %}>Bisnis</option>
+                    <option value="Eksekutif" {% if request.args.get('kelas') == 'Eksekutif' %}selected{% endif %}>Eksekutif</option>
+                </select>
+
+                <select name="status" style="padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+                    <option value="">Semua Status</option>
+                    <option value="On Time" {% if request.args.get('status') == 'On Time' %}selected{% endif %}>On Time</option>
+                    <option value="Delay" {% if request.args.get('status') == 'Delay' %}selected{% endif %}>Delay</option>
+                    <option value="Dibatalkan" {% if request.args.get('status') == 'Dibatalkan' %}selected{% endif %}>Dibatalkan</option>
+                </select>
+
+                <div style="display: flex; gap: 5px; align-items: center;">
+                    <input type="number" name="min_price" placeholder="Harga min"
+                           value="{{ request.args.get('min_price', '') }}"
+                           style="padding: 12px; width: 100px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+                    <span>-</span>
+                    <input type="number" name="max_price" placeholder="Harga max"
+                           value="{{ request.args.get('max_price', '') }}"
+                           style="padding: 12px; width: 100px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px;">
+                </div>
+
+                <button type="submit" style="padding: 12px 24px; background-color: #f37021; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 16px;">Cari</button>
+                {% if search_query or request.args.get('kelas') or request.args.get('status') or request.args.get('min_price') or request.args.get('max_price') %}
+                    <a href="/" style="margin-left: 10px; padding: 12px 24px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px; font-size: 16px;">Reset</a>
+                {% endif %}
+            </form>
+        </div>
+        <section class="hero">
+            <div>
+                <h1>Pesan tiket kereta dengan cepat dan aman</h1>
+                <p>
+                    Jelajahi pilihan tiket dari berbagai rute favorit, lihat detail jadwal,
+                    dan pilih kelas perjalanan yang sesuai. Semua informasi tersedia tanpa proses transaksi.
+                </p>
+                <div class="hero-actions">
+                    <a href="#tickets" class="btn">Lihat Tiket</a>
+                    <a href="/jadwal" class="btn btn-outline">Cek Jadwal</a>
+                </div>
+            </div>
+            <div class="hero-card">
+                <h3>Ringkasan Hari Ini</h3>
+                <p class="muted">Pantau jumlah kereta dan status terbaru sebelum memilih tiket.</p>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Kereta</div>
+                        <div class="stat-number">{{ total }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">On Time</div>
+                        <div class="stat-number" style="color: #16a34a;">{{ ontime }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Delay</div>
+                        <div class="stat-number" style="color: #dc2626;">{{ delay }}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Dibatalkan</div>
+                        <div class="stat-number" style="color: #6b7280;">{{ stats.dibatalkan if stats else 0 }}</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="ticket-section" id="tickets">
+            <div class="section-header">
+                <div>
+                    <h2>Daftar Tiket</h2>
+                    {% if total %}
+                        <div class="muted">Menampilkan {{ start_index }} - {{ end_index }} dari {{ total }} tiket.</div>
+                    {% else %}
+                        <div class="muted">Belum ada tiket tersedia.</div>
+                    {% endif %}
+                </div>
+                <div class="hero-actions">
+                    <span class="muted">Halaman {{ page }} / {{ total_pages }}</span>
+                    <a href="/kereta" class="btn btn-outline">Data Kereta</a>
+                </div>
+            </div>
+
+            {% if trains %}
+                <div class="ticket-list">
+                    {% for k in trains %}
+                    <article class="ticket-card">
+                        <div class="ticket-index">#{{ loop.index0 + start_index }}</div>
+                        {% if k["gambar"] %}
+                            <img class="ticket-thumb" src="{{ url_for('train_image', filename=k['gambar']) }}" alt="Foto {{ k['nama'] }}">
+                        {% else %}
+                            <div class="ticket-thumb placeholder">Tidak ada gambar</div>
+                        {% endif %}
+                        <div class="ticket-main">
+                            <h3>{{ k["nama"] }}</h3>
+                            <p class="ticket-desc">
+                                {{ k["deskripsi"] or "Deskripsi belum tersedia." }}
+                            </p>
+                            <div class="ticket-meta">
+                                <span>Rute: {{ k["asal"] }} - {{ k["tujuan"] }}</span>
+                                <span>Jadwal: {{ k["tanggal"] }} {{ k["jam"] }}</span>
+                                <span>Kelas: {{ k["kelas"] }}</span>
+                                <span>Status: {{ k["status"] }}</span>
+                            </div>
+                        </div>
+                        <div class="ticket-side">
+                            <span class="badge {{ (k['status'] or '')|lower|replace(' ', '-') }}">
+                                {{ k["status"] }}
+                            </span>
+                            <div class="ticket-price">Rp {{ "{:,}".format((k["harga"] or 0)|int) }}</div>
+                            <a class="btn btn-small" href="{{ url_for('checkout', id=k['id']) }}">Checkout</a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+
+                <div class="pagination">
+                    {% if page > 1 %}
+                        <a class="page-link" href="?page={{ page - 1 }}">Prev</a>
+                    {% endif %}
+                    {% for p in range(1, total_pages + 1) %}
+                        <a class="page-link {{ 'active' if p == page else '' }}" href="?page={{ p }}">{{ p }}</a>
+                    {% endfor %}
+                    {% if page < total_pages %}
+                        <a class="page-link" href="?page={{ page + 1 }}">Next</a>
+                    {% endif %}
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    <p>Tidak ada data tiket saat ini.</p>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>

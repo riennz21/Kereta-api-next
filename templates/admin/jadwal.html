@@ -1,0 +1,26 @@
+{% extends "admin/base.html" %}
+{% block title %}Jadwal | KERETA.ID{% endblock %}
+{% block page_title %}Jadwal Kereta{% endblock %}
+
+{% block content %}
+<section class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Nama Kereta</th>
+                <th>Tanggal</th>
+                <th>Jam</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for j in data %}
+            <tr>
+                <td>{{ j["nama"] }}</td>
+                <td>{{ j["tanggal"] }}</td>
+                <td>{{ j["jam"] }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

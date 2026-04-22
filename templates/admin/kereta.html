@@ -1,0 +1,214 @@
+{% extends "admin/base.html" %}
+{% block title %}Data Kereta | KERETA.ID{% endblock %}
+{% block page_title %}Data Kereta{% endblock %}
+{% block topbar_actions %}
+    <a href="{{ url_for('admin_tambah') }}" class="btn-primary">+ Tambah Kereta</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+    }
+    
+    .search-input {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        width: 300px;
+    }
+    
+    .search-btn {
+        padding: 8px 16px;
+        background-color: #1e90ff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+    
+    .reset-btn {
+        padding: 8px 16px;
+        background-color: #6b7280;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+    }
+
+    .filter-container {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .filter-group select, .filter-group input {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        min-width: 150px;
+    }
+
+    .badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge.ekonomi {
+        background: #059669;
+    }
+
+    .badge.bisnis {
+        background: #6366f1;
+    }
+
+    .badge.eksekutif {
+        background: #dc2626;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="filter-container">
+    <form method="GET" action="{{ url_for('admin_data_kereta') }}">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div class="filter-group">
+                <label>Cari</label>
+                <input type="text" name="search" placeholder="Nama, asal, tujuan..."
+                       value="{{ search_query or '' }}" class="search-input">
+            </div>
+            <div class="filter-group">
+                <label>Kelas</label>
+                <select name="kelas">
+                    <option value="">Semua Kelas</option>
+                    <option value="Ekonomi" {% if request.args.get('kelas') == 'Ekonomi' %}selected{% endif %}>Ekonomi</option>
+                    <option value="Bisnis" {% if request.args.get('kelas') == 'Bisnis' %}selected{% endif %}>Bisnis</option>
+                    <option value="Eksekutif" {% if request.args.get('kelas') == 'Eksekutif' %}selected{% endif %}>Eksekutif</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select name="status">
+                    <option value="">Semua Status</option>
+                    <option value="On Time" {% if request.args.get('status') == 'On Time' %}selected{% endif %}>On Time</option>
+                    <option value="Delay" {% if request.args.get('status') == 'Delay' %}selected{% endif %}>Delay</option>
+                    <option value="Dibatalkan" {% if request.args.get('status') == 'Dibatalkan' %}selected{% endif %}>Dibatalkan</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Harga</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="number" name="min_price" placeholder="Min"
+                           value="{{ request.args.get('min_price', '') }}" style="width: 80px;">
+                    <span>-</span>
+                    <input type="number" name="max_price" placeholder="Max"
+                           value="{{ request.args.get('max_price', '') }}" style="width: 80px;">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button type="submit" class="search-btn">Filter</button>
+            </div>
+            {% if search_query or request.args.get('kelas') or request.args.get('status') or request.args.get('min_price') or request.args.get('max_price') %}
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <a href="{{ url_for('admin_data_kereta') }}" class="reset-btn">Reset</a>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div style="margin-bottom: 15px; font-size: 14px; color: #6b7280;">
+    {% if total > 0 %}
+        Menampilkan {{ start_index }}-{{ end_index }} dari {{ total }} data
+    {% else %}
+        Tidak ada data
+    {% endif %}
+</div>
+
+<section class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Foto</th>
+                <th>Kereta</th>
+                <th>Rute</th>
+                <th>Kelas</th>
+                <th>Jadwal</th>
+                <th>Status</th>
+                <th>Harga</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for k in data %}
+            <tr>
+                <td>
+                    {% if k["gambar"] %}
+                        <img src="{{ url_for('train_image', filename=k['gambar']) }}" alt="Foto {{ k['nama'] }}">
+                    {% else %}
+                        <div class="no-image">-</div>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong>{{ k["nama"] }}</strong><br>
+                    <small>{{ k["deskripsi"] }}</small>
+                </td>
+                <td>{{ k["asal"] }} → {{ k["tujuan"] }}</td>
+                <td>
+                    <span class="badge {{ (k['kelas'] or '')|lower }}">
+                        {{ k["kelas"] }}
+                    </span>
+                </td>
+                <td>{{ k["tanggal"] }}<br>{{ k["jam"] }}</td>
+                <td>
+                    <span class="badge {{ (k['status'] or '')|lower|replace(' ', '-') }}">
+                        {{ k["status"] }}
+                    </span>
+                </td>
+                <td>Rp {{ "{:,}".format((k["harga"] or 0)|int) }}</td>
+                <td>
+                    <a href="{{ url_for('admin_edit', id=k['id']) }}" class="btn-edit">Edit</a>
+                    <a href="{{ url_for('admin_hapus', id=k['id']) }}" class="btn-delete" onclick="return confirm('Hapus data?')">Hapus</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+{% if total_pages > 1 %}
+<div style="margin-top: 20px; display: flex; justify-content: center; gap: 10px; align-items: center;">
+    {% if page > 1 %}
+        <a href="{{ url_for('admin_data_kereta', page=1, search=search_query or '', kelas=kelas_filter or '', status=status_filter or '', min_price=min_price or '', max_price=max_price or '') }}" class="btn-primary" style="padding: 8px 12px; text-decoration: none;">First</a>
+        <a href="{{ url_for('admin_data_kereta', page=page-1, search=search_query or '', kelas=kelas_filter or '', status=status_filter or '', min_price=min_price or '', max_price=max_price or '') }}" class="btn-primary" style="padding: 8px 12px; text-decoration: none;">← Previous</a>
+    {% endif %}
+    
+    <span style="color: #6b7280; font-weight: 500;">Page {{ page }} of {{ total_pages }}</span>
+    
+    {% if page < total_pages %}
+        <a href="{{ url_for('admin_data_kereta', page=page+1, search=search_query or '', kelas=kelas_filter or '', status=status_filter or '', min_price=min_price or '', max_price=max_price or '') }}" class="btn-primary" style="padding: 8px 12px; text-decoration: none;">Next →</a>
+        <a href="{{ url_for('admin_data_kereta', page=total_pages, search=search_query or '', kelas=kelas_filter or '', status=status_filter or '', min_price=min_price or '', max_price=max_price or '') }}" class="btn-primary" style="padding: 8px 12px; text-decoration: none;">Last</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endblock %}
