@@ -6,7 +6,8 @@ const navItems = [
   { href: "/admin/kereta", label: "Data Kereta", key: "kereta" },
   { href: "/admin/jadwal", label: "Jadwal", key: "jadwal" },
   { href: "/admin/status", label: "Status", key: "status" },
-  { href: "/admin/laporan", label: "Laporan", key: "laporan" },
+  { href: "/admin/laporan", label: "Laporan Operasional", key: "laporan" },
+  { href: "/admin/laporan-keuangan", label: "Laporan Keuangan", key: "laporan-keuangan" },
 ];
 
 export default function AdminLayout({ title, description, activePage, topbarAction, children }) {

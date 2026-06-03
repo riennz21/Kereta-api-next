@@ -1283,6 +1283,304 @@ textarea.input-control,
   flex-wrap: wrap;
 }
 
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ── Payment Method Selector ───────────────────────────────── */
+
+.payment-method-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.payment-method-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 2px solid rgba(15, 39, 67, 0.08);
+  border-radius: 16px;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.86);
+  transition: all 0.2s ease;
+}
+
+.payment-method-option:hover {
+  border-color: rgba(243, 112, 33, 0.28);
+  background: rgba(255, 240, 226, 0.6);
+}
+
+.payment-method-option.selected {
+  border-color: var(--brand);
+  background: rgba(255, 240, 226, 0.92);
+  box-shadow: 0 0 0 3px rgba(243, 112, 33, 0.12);
+}
+
+.payment-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+.payment-label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-strong);
+}
+
+/* ── Qty Selector ─────────────────────────────────────────── */
+
+.qty-selector {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 16px;
+  border: 1px solid rgba(15, 39, 67, 0.08);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.qty-value {
+  min-width: 32px;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 800;
+  font-family: "Space Grotesk", sans-serif;
+  color: var(--text-strong);
+}
+
+/* ── Price Summary ────────────────────────────────────────── */
+
+.price-summary-card {
+  padding: 20px;
+  border: 1px solid rgba(15, 39, 67, 0.06);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 245, 238, 0.94) 100%);
+}
+
+.price-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  color: var(--muted-strong);
+  font-weight: 600;
+}
+
+.price-summary-row.total {
+  padding-top: 12px;
+  font-size: 1.1rem;
+}
+
+.price-summary-divider {
+  height: 1px;
+  background: rgba(15, 39, 67, 0.08);
+  margin: 4px 0;
+}
+
+/* ── Period Tabs ──────────────────────────────────────────── */
+
+.period-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.period-tab {
+  display: inline-flex;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 20px;
+  border: 1px solid rgba(15, 39, 67, 0.08);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--muted-strong);
+  font-weight: 700;
+  text-decoration: none;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.period-tab:hover {
+  border-color: rgba(243, 112, 33, 0.28);
+  background: rgba(255, 240, 226, 0.7);
+  color: var(--brand-dark);
+}
+
+.period-tab.active {
+  border-color: var(--brand);
+  background: linear-gradient(135deg, var(--brand) 0%, #ff9148 100%);
+  color: white;
+  box-shadow: 0 10px 18px rgba(243, 112, 33, 0.18);
+}
+
+/* ── Chart Bars ───────────────────────────────────────────── */
+
+.chart-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  min-height: 180px;
+  padding: 20px 0 0;
+  overflow-x: auto;
+}
+
+.chart-bar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-width: 48px;
+  flex-shrink: 0;
+}
+
+.chart-bar {
+  width: 32px;
+  min-height: 4px;
+  border-radius: 999px 999px 8px 8px;
+  background: linear-gradient(180deg, var(--brand) 0%, #ff9c5d 100%);
+  transition: height 0.3s ease;
+  cursor: pointer;
+}
+
+.chart-bar:hover {
+  opacity: 0.8;
+  transform: scaleX(1.1);
+}
+
+.chart-bar-tooltip {
+  display: none;
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: var(--navy);
+  color: white;
+  font-size: 0.78rem;
+  text-align: center;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.chart-bar-item {
+  position: relative;
+}
+
+.chart-bar-item:hover .chart-bar-tooltip {
+  display: block;
+}
+
+.chart-bar-label {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ── Payment Status Badge ─────────────────────────────────── */
+
+.payment-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(31, 157, 99, 0.14);
+  background: rgba(228, 248, 238, 0.95);
+  color: var(--green);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.kelas-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(47, 111, 237, 0.14);
+  background: rgba(234, 241, 255, 0.95);
+  color: var(--blue);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+/* ── Date Range Picker ───────────────────────────────────── */
+
+.date-range-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.date-range-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.date-range-field label {
+  color: var(--muted-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.date-input {
+  width: 170px;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgba(15, 39, 67, 0.12);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  color: var(--text-strong);
+  font-size: 0.9rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.date-input:focus {
+  outline: none;
+  border-color: rgba(243, 112, 33, 0.7);
+  box-shadow: 0 0 0 4px rgba(243, 112, 33, 0.12);
+}
+
+.date-range-sep {
+  color: var(--muted);
+  font-weight: 700;
+  padding-bottom: 10px;
+}
+
+.filter-divider {
+  display: inline-flex;
+  align-items: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+.active-filter-chip {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 14px;
+  background: rgba(243, 112, 33, 0.08);
+  color: var(--brand-dark);
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+
+.active-filter-chip strong {
+  font-weight: 800;
+}
+
 .alert {
   display: flex;
   align-items: center;
