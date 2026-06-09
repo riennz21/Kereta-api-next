@@ -4,8 +4,8 @@ import { useRouter } from "next/router";
 
 const links = [
   { href: "/", label: "BERANDA" },
-  { href: "/jadwal-status", label: "JADWAL & STATUS" },
   { href: "/jadwal", label: "JADWAL" },
+  { href: "/cek-pesanan", label: "CEK PESANAN" },
   { href: "/status", label: "STATUS" },
 ];
 
