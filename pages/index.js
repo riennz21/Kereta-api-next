@@ -5,7 +5,6 @@ import TrainFilters from "../components/public/TrainFilters";
 import StatusBadge from "../components/StatusBadge";
 import TrainClassBadge from "../components/TrainClassBadge";
 import EmptyState from "../components/ui/EmptyState";
-import MetricGrid from "../components/ui/MetricGrid";
 import PageHeader from "../components/ui/PageHeader";
 import { getDashboardSummary } from "../lib/db";
 import { buildQueryString } from "../lib/query-string";
@@ -19,58 +18,51 @@ import {
 
 export default function DashboardPage({ filters, summary }) {
   const queryValues = {
-    search: filters.search,
+    asal: filters.asal,
+    tujuan: filters.tujuan,
+    tanggal: filters.tanggal,
     kelas: filters.kelas,
-    status: filters.status,
+    search: filters.search,
     min_price: filters.minPrice,
     max_price: filters.maxPrice,
   };
   const featuredTrain = summary.trains[0] || null;
-  const dashboardMetrics = [
-    { label: "Total Kereta", value: summary.total, helper: "Pilihan aktif saat ini", tone: "brand" },
-    { label: "On Time", value: summary.ontime, helper: "Perjalanan tepat waktu", tone: "success" },
-    { label: "Delay", value: summary.delay, helper: "Perlu perhatian ekstra", tone: "danger" },
-    { label: "Dibatalkan", value: summary.dibatalkan, helper: "Status pembatalan", tone: "navy" },
-  ];
 
   return (
-    <PublicLayout title="Dashboard">
+    <PublicLayout title="Beranda">
+      {/* Search form — above the fold */}
+      <TrainFilters action="/" filters={filters} showReset={hasActiveFilters(filters)} resetHref="/" />
+
       <section className="hero">
         <div className="hero-panel hero-primary">
-          <span className="page-kicker">Platform perjalanan kereta</span>
-          <h1 className="page-title">Pesan tiket kereta yang lebih cepat, rapi, dan nyaman.</h1>
+          <span className="page-kicker">Platform pemesanan tiket</span>
+          <h1 className="page-title">Pesan tiket kereta cepat, mudah, dan nyaman.</h1>
           <p className="hero-description">
-            Jelajahi pilihan tiket dari berbagai rute favorit, lihat detail jadwal, dan pilih kelas
-            perjalanan yang sesuai. Semua informasi tersedia dalam satu dashboard yang mudah dipindai,
-            tanpa proses transaksi nyata.
+            Temukan & pesan tiket kereta dari berbagai rute favorit. Pilih stasiun asal, tujuan,
+            dan tanggal keberangkatan untuk memulai perjalanan Anda.
           </p>
           <div className="hero-pills">
-            <span>Rute populer</span>
-            <span>Filter harga dan status</span>
-            <span>Ringkasan operasional harian</span>
+            <span>{summary.total} kereta tersedia</span>
+            <span>Rute: {summary.stations?.join(", ")}</span>
+            <span>Kelas Ekonomi, Bisnis & Eksekutif</span>
           </div>
           <div className="hero-actions">
             <a href="#tickets" className="btn btn-primary">
-              Jelajahi Tiket
+              Lihat Tiket Tersedia
             </a>
             <Link href="/jadwal" className="btn btn-outline">
               Cek Jadwal
             </Link>
-            <Link href="/kereta" className="btn btn-muted">
-              Lihat Data Lengkap
-            </Link>
           </div>
         </div>
 
-        <aside className="hero-card">
-          <div className="hero-card-header">
-            <h3>Ringkasan Hari Ini</h3>
-            <p className="muted">Pantau performa kereta sebelum memilih jadwal perjalanan.</p>
-          </div>
+        {featuredTrain ? (
+          <aside className="hero-card">
+            <div className="hero-card-header">
+              <h3>Rekomendasi Perjalanan</h3>
+              <p className="muted">Kereta pilihan yang siap menemani perjalanan Anda.</p>
+            </div>
 
-          <MetricGrid items={dashboardMetrics} />
-
-          {featuredTrain ? (
             <div className="hero-feature">
               {featuredTrain.gambar ? (
                 <img
@@ -83,9 +75,9 @@ export default function DashboardPage({ filters, summary }) {
               )}
               <div className="hero-feature-copy">
                 <div className="stack-sm">
-                  <span className="page-kicker">Pilihan Terbaru</span>
+                  <span className="page-kicker">Pilihan Terbaik</span>
                   <h4>{featuredTrain.nama}</h4>
-                  <p>{featuredTrain.deskripsi || "Kereta pilihan dengan rute yang siap Anda cek lebih lanjut."}</p>
+                  <p>{featuredTrain.deskripsi || "Kereta dengan rute favorit yang siap Anda pesan."}</p>
                 </div>
                 <div className="stack-sm">
                   <span className="ticket-route">
@@ -99,28 +91,21 @@ export default function DashboardPage({ filters, summary }) {
                 </div>
               </div>
             </div>
-          ) : null}
-        </aside>
+          </aside>
+        ) : null}
       </section>
-
-      <TrainFilters action="/" filters={filters} showReset={hasActiveFilters(filters)} resetHref="/" />
 
       <section id="tickets" className="stack-md">
         <PageHeader
           compact
-          eyebrow="Pilihan perjalanan"
-          title="Daftar Tiket Tersedia"
+          eyebrow="Daftar perjalanan"
+          title="Tiket Kereta Tersedia"
           description={
             summary.total
-              ? `Menampilkan ${summary.startIndex} - ${summary.endIndex} dari ${summary.total} tiket dengan filter yang sedang aktif.`
-              : "Belum ada tiket yang cocok dengan filter saat ini."
+              ? `Menampilkan ${summary.startIndex} - ${summary.endIndex} dari ${summary.total} tiket.`
+              : "Belum ada tiket yang cocok dengan pencarian Anda."
           }
-          meta={[`Halaman ${summary.page} dari ${summary.totalPages}`, `${summary.ontime} kereta on time`]}
-          actions={
-            <Link href="/kereta" className="btn btn-outline">
-              Buka Tabel Data
-            </Link>
-          }
+          meta={[`Halaman ${summary.page} dari ${summary.totalPages}`]}
         />
 
         {summary.trains.length ? (
@@ -138,19 +123,28 @@ export default function DashboardPage({ filters, summary }) {
                     <h3>{train.nama}</h3>
                     <p className="ticket-desc">{train.deskripsi || "Deskripsi belum tersedia."}</p>
                     <div className="ticket-meta">
-                      <span>Rute: {train.asal} - {train.tujuan}</span>
                       <span>
-                        Jadwal: {train.tanggal} {train.jam}
+                        <strong>Rute:</strong> {train.asal} - {train.tujuan}
                       </span>
-                      <span>Kelas: {train.kelas}</span>
-                      <span>Status: {train.status}</span>
+                      <span>
+                        <strong>Jadwal:</strong> {train.tanggal} {train.jam}
+                      </span>
+                      <span>
+                        <strong>Kelas:</strong> {train.kelas}
+                      </span>
+                    </div>
+                    <div className="inline-actions">
+                      <TrainClassBadge trainClass={train.kelas} />
+                      <StatusBadge status={train.status} />
                     </div>
                   </div>
                   <div className="ticket-side">
-                    <StatusBadge status={train.status} />
                     <div className="ticket-price">{formatCurrency(train.harga)}</div>
-                    <Link href={`/checkout/${train.id}`} className="btn btn-primary">
-                      Checkout
+                    <Link
+                      href={`/checkout/${train.id}`}
+                      className={`btn ${train.status === "On Time" ? "btn-primary btn-cta" : "btn-muted"}`}
+                    >
+                      {train.status === "On Time" ? "Pesan Sekarang" : "Lihat Detail"}
                     </Link>
                   </div>
                 </article>
@@ -165,12 +159,12 @@ export default function DashboardPage({ filters, summary }) {
           </>
         ) : (
           <EmptyState
-            title="Belum ada tiket yang cocok"
-            description="Coba ubah filter pencarian atau reset kembali untuk melihat semua perjalanan yang tersedia."
+            title="Tiket tidak ditemukan"
+            description="Coba ubah stasiun, tanggal, atau filter pencarian untuk melihat perjalanan yang tersedia."
             action={
               hasActiveFilters(filters) ? (
                 <Link href="/" className="btn btn-primary">
-                  Reset Filter
+                  Reset Pencarian
                 </Link>
               ) : null
             }

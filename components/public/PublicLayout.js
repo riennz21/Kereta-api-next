@@ -3,8 +3,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 
 const links = [
-  { href: "/", label: "HOME" },
-  { href: "/kereta", label: "DATA KERETA" },
+  { href: "/", label: "BERANDA" },
   { href: "/jadwal", label: "JADWAL" },
   { href: "/status", label: "STATUS" },
 ];

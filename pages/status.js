@@ -1,27 +1,26 @@
+import Link from "next/link";
 import PublicLayout from "../components/public/PublicLayout";
 import StatusBadge from "../components/StatusBadge";
 import EmptyState from "../components/ui/EmptyState";
 import MetricGrid from "../components/ui/MetricGrid";
 import PageHeader from "../components/ui/PageHeader";
-import { getStatusRows } from "../lib/db";
+import { getStatusRows, getReportSummary } from "../lib/db";
 
-export default function StatusPage({ data }) {
-  const onTime = data.filter((row) => row.status === "On Time").length;
-  const delay = data.filter((row) => row.status === "Delay").length;
-  const cancelled = data.filter((row) => row.status === "Dibatalkan").length;
+export default function StatusPage({ data, stats }) {
   const metricItems = [
-    { label: "Total Status", value: data.length, helper: "Kereta dengan status aktif", tone: "brand" },
-    { label: "On Time", value: onTime, helper: "Perjalanan tepat waktu", tone: "success" },
-    { label: "Delay / Batal", value: `${delay} / ${cancelled}`, helper: "Perlu perhatian penumpang", tone: "danger" },
+    { label: "Total Kereta", value: stats.total, helper: "Semua kereta terdaftar", tone: "brand" },
+    { label: "On Time", value: stats.on_time, helper: "Perjalanan tepat waktu", tone: "success" },
+    { label: "Delay", value: stats.delay, helper: "Perlu perhatian ekstra", tone: "danger" },
+    { label: "Dibatalkan", value: stats.dibatalkan, helper: "Pembatalan perjalanan", tone: "navy" },
   ];
 
   return (
     <PublicLayout title="Status Kereta">
       <PageHeader
         eyebrow="Status operasional"
-        title="Status Kereta Api"
-        description="Lihat kondisi perjalanan terkini untuk mengetahui apakah kereta berjalan normal, terlambat, atau dibatalkan."
-        meta={["Cocok untuk monitoring cepat", "Status diperbarui dari data aktif"]}
+        title="Status & Ringkasan Operasional"
+        description="Pantau kondisi perjalanan terkini. Lihat apakah kereta berjalan normal, terlambat, atau dibatalkan."
+        meta={["Ringkasan harian", "Cocok untuk monitoring perjalanan"]}
       />
 
       <MetricGrid items={metricItems} className="stack-md" />
@@ -30,8 +29,8 @@ export default function StatusPage({ data }) {
         <div className="table-card">
           <div className="table-toolbar">
             <div className="table-toolbar-copy">
-              <h2>Ringkasan Status</h2>
-              <p>Gunakan status ini untuk memeriksa kesiapan perjalanan sebelum melanjutkan proses.</p>
+              <h2>Daftar Status Perjalanan</h2>
+              <p>Status terkini setiap kereta yang terdaftar.</p>
             </div>
           </div>
           <table className="data-table">
@@ -57,6 +56,11 @@ export default function StatusPage({ data }) {
         <EmptyState
           title="Belum ada status kereta"
           description="Status perjalanan akan tampil di sini setelah data kereta diisi pada panel admin."
+          action={
+            <Link href="/" className="btn btn-primary">
+              Cari Tiket
+            </Link>
+          }
         />
       )}
     </PublicLayout>
@@ -64,9 +68,11 @@ export default function StatusPage({ data }) {
 }
 
 export async function getServerSideProps() {
+  const [data, stats] = await Promise.all([getStatusRows(), getReportSummary()]);
   return {
     props: {
-      data: await getStatusRows(),
+      data,
+      stats,
     },
   };
 }

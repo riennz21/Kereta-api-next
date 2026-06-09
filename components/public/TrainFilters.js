@@ -1,23 +1,58 @@
-import { TRAIN_CLASSES, TRAIN_STATUSES } from "../../lib/constants";
+import { TRAIN_CLASSES, STATIONS } from "../../lib/constants";
 
-export default function TrainFilters({ action, filters, showReset, resetHref, buttonLabel = "Cari" }) {
+export default function TrainFilters({ action, filters, showReset, resetHref, buttonLabel = "Cari Tiket" }) {
+  const today = new Date().toISOString().split("T")[0];
+
   return (
-    <div className="filters-card">
-      <form method="get" action={action} className="filters-shell">
-        <div className="filters-form">
-          <label className="filter-field filter-field-wide">
-            <span>Cari Perjalanan</span>
+    <div className="search-hero-card">
+      <form method="get" action={action} className="search-hero-form">
+        <div className="search-fields">
+          <label className="search-field">
+            <span className="search-field-label">Stasiun Asal</span>
+            <select
+              name="asal"
+              defaultValue={filters.asal}
+              className="input-control search-select"
+            >
+              <option value="">Pilih stasiun asal</option>
+              {STATIONS.map((station) => (
+                <option key={station} value={station}>
+                  {station}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="search-field">
+            <span className="search-field-label">Stasiun Tujuan</span>
+            <select
+              name="tujuan"
+              defaultValue={filters.tujuan}
+              className="input-control search-select"
+            >
+              <option value="">Pilih stasiun tujuan</option>
+              {STATIONS.map((station) => (
+                <option key={station} value={station}>
+                  {station}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label className="search-field">
+            <span className="search-field-label">Tanggal Keberangkatan</span>
             <input
-              type="text"
-              name="search"
-              placeholder="Nama kereta, asal, atau tujuan..."
-              defaultValue={filters.search}
-              className="input-control search-control"
+              type="date"
+              name="tanggal"
+              defaultValue={filters.tanggal}
+              className="input-control"
+              min={today}
+              required
             />
           </label>
 
-          <label className="filter-field">
-            <span>Kelas</span>
+          <label className="search-field">
+            <span className="search-field-label">Kelas</span>
             <select name="kelas" defaultValue={filters.kelas} className="input-control">
               <option value="">Semua Kelas</option>
               {TRAIN_CLASSES.map((option) => (
@@ -27,43 +62,14 @@ export default function TrainFilters({ action, filters, showReset, resetHref, bu
               ))}
             </select>
           </label>
-
-          <label className="filter-field">
-            <span>Status</span>
-            <select name="status" defaultValue={filters.status} className="input-control">
-              <option value="">Semua Status</option>
-              {TRAIN_STATUSES.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <label className="filter-field">
-            <span>Rentang Harga</span>
-            <div className="price-range">
-              <input
-                type="number"
-                name="min_price"
-                placeholder="Min"
-                defaultValue={filters.minPrice}
-                className="input-control"
-              />
-              <span>-</span>
-              <input
-                type="number"
-                name="max_price"
-                placeholder="Max"
-                defaultValue={filters.maxPrice}
-                className="input-control"
-              />
-            </div>
-          </label>
         </div>
 
-        <div className="filter-actions">
-          <button type="submit" className="btn btn-primary">
+        <div className="search-actions">
+          <button type="submit" className="btn btn-primary btn-search">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.35-4.35" />
+            </svg>
             {buttonLabel}
           </button>
 
@@ -72,8 +78,6 @@ export default function TrainFilters({ action, filters, showReset, resetHref, bu
               Reset
             </a>
           ) : null}
-
-          <span className="filter-chip">Filter cepat untuk menemukan perjalanan yang tepat.</span>
         </div>
       </form>
     </div>
