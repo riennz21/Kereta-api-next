@@ -6,14 +6,16 @@ const links = [
   { href: "/", label: "BERANDA" },
   { href: "/jadwal", label: "JADWAL" },
   { href: "/cek-pesanan", label: "CEK PESANAN" },
+  { href: "/riwayat", label: "RIWAYAT" },
   { href: "/status", label: "STATUS" },
 ];
 
-const USER_NAME = "Sena";
+const USER_NAME = "riee";
 
 export default function Navbar() {
   const router = useRouter();
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef(null);
 
   useEffect(() => {
@@ -26,6 +28,11 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [router.pathname]);
+
   return (
     <header className="public-header">
       <div className="public-navbar">
@@ -37,7 +44,8 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <nav className="public-nav">
+        {/* Desktop Nav */}
+        <nav className="public-nav hidden md:block">
           <ul className="public-nav-list">
             {links.map((link) => (
               <li key={link.href}>
@@ -56,24 +64,13 @@ export default function Navbar() {
 
             {/* Utility links */}
             <li>
-              <Link href="/jadwal" className="public-nav-link util-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                  <line x1="16" y1="2" x2="16" y2="6" />
-                  <line x1="8" y1="2" x2="8" y2="6" />
-                  <line x1="3" y1="10" x2="21" y2="10" />
-                </svg>
-                Cek Pesanan
-              </Link>
-            </li>
-            <li>
-              <Link href="/status" className="public-nav-link util-link">
+              <Link href="/status-pesanan" className="public-nav-link util-link">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <circle cx="12" cy="12" r="10" />
                   <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
                   <line x1="12" y1="17" x2="12.01" y2="17" />
                 </svg>
-                Bantuan
+                Lacak Pesanan
               </Link>
             </li>
 
@@ -107,13 +104,17 @@ export default function Navbar() {
                     <span className="profile-dropdown-avatar">{USER_NAME.charAt(0)}</span>
                     <div>
                       <strong>{USER_NAME}</strong>
-                      <small>sena@example.com</small>
+                      <small>rieen@example.com</small>
                     </div>
                   </div>
                   <div className="profile-dropdown-divider" />
-                  <Link href="/jadwal" className="profile-dropdown-item">
-                    Akun Saya
+                  <Link href="/riwayat" className="profile-dropdown-item">
+                    Riwayat Pesanan
                   </Link>
+                  <Link href="/status-pesanan" className="profile-dropdown-item">
+                    Lacak Pesanan
+                  </Link>
+                  <div className="profile-dropdown-divider" />
                   <button className="profile-dropdown-item logout-item">
                     Logout
                   </button>
@@ -122,7 +123,74 @@ export default function Navbar() {
             </li>
           </ul>
         </nav>
+
+        {/* Mobile Menu Button */}
+        <button
+          className="md:hidden w-10 h-10 rounded-xl border border-[rgba(15,39,67,0.08)] bg-white/80 flex items-center justify-center"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            {mobileMenuOpen ? (
+              <>
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </>
+            ) : (
+              <>
+                <line x1="3" y1="6" x2="21" y2="6" />
+                <line x1="3" y1="12" x2="21" y2="12" />
+                <line x1="3" y1="18" x2="21" y2="18" />
+              </>
+            )}
+          </svg>
+        </button>
       </div>
+
+      {/* Mobile Menu */}
+      {mobileMenuOpen && (
+        <div className="md:hidden border-t border-[rgba(15,39,67,0.06)] bg-white/95 backdrop-blur-md animate-slide-in">
+          <div className="py-3 px-4">
+            <div className="flex flex-col gap-1">
+              {links.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
+                    router.pathname === link.href
+                      ? "bg-navy text-white"
+                      : "text-[#475467] hover:bg-[rgba(15,39,67,0.04)]"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              <div className="h-px bg-[rgba(15,39,67,0.06)] my-1" />
+              <Link
+                href="/status-pesanan"
+                className="px-4 py-3 rounded-xl text-sm font-bold text-[#475467] hover:bg-[rgba(15,39,67,0.04)] flex items-center gap-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+                  <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Lacak Pesanan
+              </Link>
+              <Link
+                href="/riwayat"
+                className="px-4 py-3 rounded-xl text-sm font-bold text-[#475467] hover:bg-[rgba(15,39,67,0.04)] flex items-center gap-2"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+                Riwayat Pesanan
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

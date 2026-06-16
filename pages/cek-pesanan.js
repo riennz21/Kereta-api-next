@@ -56,7 +56,7 @@ export default function CekPesananPage() {
 
   const booking = {
     bookingCode: query.bookingCode || "KAI-7X9B2Z",
-    name: query.name || "Sena",
+    name: query.name || "riee",
     nik: query.nik || "3273010101950001",
     phone: query.phone || "081234567890",
     seat: query.seat || "12A",
