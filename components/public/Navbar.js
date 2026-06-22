@@ -1,13 +1,14 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { Train, Search, Calendar, Clock, History, HelpCircle, Menu, X, Ticket } from "lucide-react";
 
 const links = [
-  { href: "/", label: "BERANDA" },
-  { href: "/jadwal", label: "JADWAL" },
-  { href: "/cek-pesanan", label: "CEK PESANAN" },
-  { href: "/riwayat", label: "RIWAYAT" },
-  { href: "/status", label: "STATUS" },
+  { href: "/", label: "Beranda", icon: Train },
+  { href: "/jadwal", label: "Jadwal", icon: Calendar },
+  { href: "/status", label: "Status", icon: Clock },
+  { href: "/cek-pesanan", label: "Cek Pesanan", icon: Search },
+  { href: "/riwayat", label: "Riwayat", icon: History },
 ];
 
 const USER_NAME = "riee";
@@ -28,7 +29,6 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Close mobile menu on route change
   useEffect(() => {
     setMobileMenuOpen(false);
   }, [router.pathname]);
@@ -47,35 +47,27 @@ export default function Navbar() {
         {/* Desktop Nav */}
         <nav className="public-nav hidden md:block">
           <ul className="public-nav-list">
-            {links.map((link) => (
-              <li key={link.href}>
-                <Link
-                  href={link.href}
-                  className={
-                    router.pathname === link.href
-                      ? "public-nav-link active"
-                      : "public-nav-link"
-                  }
-                >
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-
-            {/* Utility links */}
-            <li>
-              <Link href="/status-pesanan" className="public-nav-link util-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-                Lacak Pesanan
-              </Link>
-            </li>
+            {links.map((link) => {
+              const Icon = link.icon;
+              return (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className={
+                      router.pathname === link.href
+                        ? "nav-link active"
+                        : "nav-link"
+                    }
+                  >
+                    <Icon size={14} />
+                    {link.label}
+                  </Link>
+                </li>
+              );
+            })}
 
             {/* User Profile */}
-            <li className="profile-item" ref={dropdownRef}>
+            <li className="profile-item ml-2" ref={dropdownRef}>
               <button
                 className={`profile-trigger ${profileOpen ? "active" : ""}`}
                 onClick={() => setProfileOpen((prev) => !prev)}
@@ -104,7 +96,7 @@ export default function Navbar() {
                     <span className="profile-dropdown-avatar">{USER_NAME.charAt(0)}</span>
                     <div>
                       <strong>{USER_NAME}</strong>
-                      <small>rieen@example.com</small>
+                      <small>riee@example.com</small>
                     </div>
                   </div>
                   <div className="profile-dropdown-divider" />
@@ -126,68 +118,43 @@ export default function Navbar() {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden w-10 h-10 rounded-xl border border-[rgba(15,39,67,0.08)] bg-white/80 flex items-center justify-center"
+          className="md:hidden w-10 h-10 rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/80 flex items-center justify-center text-slate-700"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           aria-label="Toggle menu"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            {mobileMenuOpen ? (
-              <>
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </>
-            ) : (
-              <>
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </>
-            )}
-          </svg>
+          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>
       </div>
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-[rgba(15,39,67,0.06)] bg-white/95 backdrop-blur-md animate-slide-in">
-          <div className="py-3 px-4">
-            <div className="flex flex-col gap-1">
-              {links.map((link) => (
+        <div className="md:hidden border-t border-[rgba(15,23,42,0.06)] bg-white/95 backdrop-blur-md animate-slide-in">
+          <div className="py-3 px-4 space-y-1">
+            {links.map((link) => {
+              const Icon = link.icon;
+              return (
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`px-4 py-3 rounded-xl text-sm font-bold transition-colors ${
+                  className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-colors ${
                     router.pathname === link.href
-                      ? "bg-navy text-white"
-                      : "text-[#475467] hover:bg-[rgba(15,39,67,0.04)]"
+                      ? "bg-brand text-white"
+                      : "text-slate-600 hover:bg-slate-50"
                   }`}
                 >
+                  <Icon size={16} />
                   {link.label}
                 </Link>
-              ))}
-              <div className="h-px bg-[rgba(15,39,67,0.06)] my-1" />
-              <Link
-                href="/status-pesanan"
-                className="px-4 py-3 rounded-xl text-sm font-bold text-[#475467] hover:bg-[rgba(15,39,67,0.04)] flex items-center gap-2"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                  <line x1="12" y1="17" x2="12.01" y2="17" />
-                </svg>
-                Lacak Pesanan
-              </Link>
-              <Link
-                href="/riwayat"
-                className="px-4 py-3 rounded-xl text-sm font-bold text-[#475467] hover:bg-[rgba(15,39,67,0.04)] flex items-center gap-2"
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <circle cx="12" cy="12" r="10" />
-                  <polyline points="12 6 12 12 16 14" />
-                </svg>
-                Riwayat Pesanan
-              </Link>
-            </div>
+              );
+            })}
+            <div className="h-px bg-[rgba(15,23,42,0.06)] my-1" />
+            <Link
+              href="/status-pesanan"
+              className="flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50"
+            >
+              <HelpCircle size={16} />
+              Lacak Pesanan
+            </Link>
           </div>
         </div>
       )}

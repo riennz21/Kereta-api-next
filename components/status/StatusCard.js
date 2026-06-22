@@ -41,14 +41,12 @@ export default function StatusCard({ train }) {
   const cfg = getStatusConfig(train.status);
 
   return (
-    <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-5 border border-[rgba(186,151,113,0.12)] shadow-[0_8px_16px_rgba(15,39,67,0.06)] hover:shadow-[0_12px_24px_rgba(15,39,67,0.10)] transition-all duration-300 hover:-translate-y-1 group">
+    <div className="modern-result-card group">
       <div className="flex items-start gap-4">
-        {/* Train Icon */}
         <div className={`w-14 h-14 rounded-2xl ${cfg.iconBg} flex items-center justify-center flex-shrink-0 group-hover:scale-105 transition-transform duration-300`}>
-          <Train size={26} className="text-[#0f2743]" />
+          <Train size={26} className="text-[#4f46e5]" />
         </div>
 
-        {/* Info */}
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-3 mb-1.5">
             <h3 className="text-base font-bold text-[#101828] truncate">
@@ -60,11 +58,10 @@ export default function StatusCard({ train }) {
             </span>
           </div>
 
-          {/* Details Row */}
           <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 mt-2">
             {train.asal && train.tujuan && (
               <div className="flex items-center gap-1.5 text-xs text-[#667085]">
-                <MapPin size={12} className="text-[#f37021]" />
+                <MapPin size={12} className="text-[#4f46e5]" />
                 <span className="font-semibold">{train.asal}</span>
                 <ArrowRight size={10} className="text-[#98a2b3]" />
                 <span className="font-semibold">{train.tujuan}</span>
@@ -72,7 +69,7 @@ export default function StatusCard({ train }) {
             )}
             {train.jam && (
               <div className="flex items-center gap-1.5 text-xs text-[#667085]">
-                <Clock size={12} className="text-[#0f2743]" />
+                <Clock size={12} className="text-[#4f46e5]" />
                 <span className="font-semibold">{train.jam}</span>
               </div>
             )}
@@ -83,14 +80,11 @@ export default function StatusCard({ train }) {
             )}
           </div>
 
-          {/* Bottom row with extra metadata */}
           <div className="flex items-center justify-between mt-3 pt-3 border-t border-[rgba(15,39,67,0.04)]">
             {train.tanggal && (
-              <span className="text-[11px] text-[#98a2b3] font-medium">
-                {train.tanggal}
-              </span>
+              <span className="text-[11px] text-[#98a2b3] font-medium">{train.tanggal}</span>
             )}
-            <button className="text-[11px] font-bold text-[#c6520f] hover:text-[#f37021] transition-colors flex items-center gap-1">
+            <button className="text-[11px] font-bold text-[#4f46e5] hover:text-[#4338ca] transition-colors flex items-center gap-1">
               Lihat Detail
               <ArrowRight size={12} />
             </button>

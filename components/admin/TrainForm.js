@@ -156,7 +156,7 @@ export default function TrainForm({ action, initialValues = emptyValues, submitL
             </div>
 
             {previewUrl ? (
-              <img src={previewUrl} alt={initialValues.nama || "Preview"} className="preview" />
+              <img loading="lazy" src={previewUrl} alt={initialValues.nama || "Preview"} className="preview" />
             ) : (
               <div className="preview preview-empty">Belum ada gambar untuk ditampilkan.</div>
             )}

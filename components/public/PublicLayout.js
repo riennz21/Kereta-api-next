@@ -1,6 +1,7 @@
 import Head from "next/head";
 import { BookingProvider } from "../../lib/booking-context";
 import Navbar from "./Navbar";
+import Footer from "./Footer";
 
 export default function PublicLayout({ title, children }) {
   return (
@@ -12,6 +13,7 @@ export default function PublicLayout({ title, children }) {
       <div className="public-shell">
         <Navbar />
         <main className="public-container">{children}</main>
+        <Footer />
       </div>
     </BookingProvider>
   );

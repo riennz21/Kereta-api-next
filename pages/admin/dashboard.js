@@ -77,7 +77,7 @@ export default function AdminDashboardPage({ data, filters, stats, classCounts }
                 <tr key={train.id}>
                   <td>
                     {train.gambar ? (
-                      <img src={getImageUrl(train.gambar)} alt={`Foto ${train.nama}`} className="table-image" />
+                      <img loading="lazy" src={getImageUrl(train.gambar)} alt={`Foto ${train.nama}`} className="table-image" />
                     ) : (
                       <div className="table-image preview-empty">-</div>
                     )}
