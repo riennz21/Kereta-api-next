@@ -1,12 +1,26 @@
 import Link from "next/link";
-import { CheckCircle, XCircle, Clock as ClockIcon, TrendingUp, Calendar, ArrowRight } from "lucide-react";
+import {
+  CheckCircle,
+  XCircle,
+  Clock as ClockIcon,
+  TrendingUp,
+  Calendar,
+  ArrowRight,
+  Train,
+  Plus,
+  ListOrdered,
+  CalendarCheck,
+  AlertTriangle,
+} from "lucide-react";
 import AdminLayout from "../../components/admin/AdminLayout";
 
 import DbError, { getDbErrorMessage } from "../../components/ui/DbError";
 import MetricGrid from "../../components/ui/MetricGrid";
-import { getPaginatedPurchases, getPurchaseSummary, getPurchaseSummaryByDate, getPurchaseRevenueByStatus } from "../../lib/db";
+import StatusBadge from "../../components/StatusBadge";
+import TrainClassBadge from "../../components/TrainClassBadge";
+import { getAllTrains, getPaginatedPurchases, getPurchaseSummary, getPurchaseSummaryByDate, getPurchaseRevenueByStatus } from "../../lib/db";
 import { requireAdminPage } from "../../lib/page-auth";
-import { formatCurrency } from "../../lib/train-utils";
+import { computeStats, formatCurrency } from "../../lib/train-utils";
 
 const STATUS_CONFIG = {
   paid: { label: "Lunas", badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle },
@@ -120,6 +134,8 @@ export default function AdminDashboardPage({
   dailyBreakdown,
   revenueByStatus,
   recentPurchases,
+  trainStats,
+  trains,
   dbError,
 }) {
   const revenueItems = [
@@ -155,6 +171,22 @@ export default function AdminDashboardPage({
 
   const hasRevenueData = (summary.total_pendapatan || 0) > 0;
   const hasChartData = dailyBreakdown && dailyBreakdown.length > 0;
+  const hasTrains = trains && trains.length > 0;
+
+  // Compute class counts without showing origin/destination
+  const classCounts = hasTrains
+    ? trains.reduce((acc, t) => {
+        const key = t.kelas?.trim();
+        if (key) acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {})
+    : {};
+
+  const statusDotMap = {
+    "On Time": "bg-emerald-500",
+    "Delay": "bg-amber-500",
+    "Dibatalkan": "bg-red-500",
+  };
 
   return (
     <AdminLayout
@@ -167,7 +199,7 @@ export default function AdminDashboardPage({
         </Link>
       }
     >
-      {/* Revenue Overview Section */}
+      {/* Revenue Overview Section — only when there are transactions */}
       {hasRevenueData && (
         <div className="mb-6">
           <div className="flex items-center gap-2 mb-3">
@@ -281,6 +313,181 @@ export default function AdminDashboardPage({
         </div>
       )}
 
+      {/* Train Overview Section — shown when there are trains, but no transaction data yet */}
+      {!hasRevenueData && hasTrains && (
+        <div className="space-y-6">
+          {/* Heading */}
+          <div className="flex items-center gap-2 mb-1">
+            <Train size={18} className="text-indigo-600" />
+            <h2 className="text-lg font-bold font-display text-slate-900">Ringkasan Armada Kereta</h2>
+            <span className="text-[11px] text-slate-400 font-semibold">— Seluruh data kereta</span>
+          </div>
+
+          {/* Stats Grid */}
+          <MetricGrid
+            items={[
+              { label: "Total Kereta", value: trainStats.total, helper: "Seluruh armada", tone: "brand" },
+              { label: "On Time", value: trainStats.on_time, helper: "Berjalan sesuai jadwal", tone: "success" },
+              { label: "Delay", value: trainStats.delay, helper: "Mengalami keterlambatan", tone: "danger" },
+              { label: "Dibatalkan", value: trainStats.dibatalkan, helper: "Perjalanan dibatalkan", tone: "warning" },
+            ]}
+            className="admin-stats-grid"
+          />
+
+          {/* Class distribution + Quick actions row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            {/* Class Distribution */}
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+              <h3 className="text-sm font-bold font-display text-slate-900 mb-3">Distribusi Kelas</h3>
+              {Object.keys(classCounts).length > 0 ? (
+                <div className="space-y-3">
+                  {Object.entries(classCounts).map(([kelas, count]) => {
+                    const pct = Math.round((count / trainStats.total) * 100);
+                    const barColor =
+                      kelas === "Eksekutif"
+                        ? "bg-indigo-500"
+                        : kelas === "Bisnis"
+                          ? "bg-amber-500"
+                          : "bg-emerald-500";
+                    return (
+                      <div key={kelas}>
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="font-semibold text-slate-700">
+                            <TrainClassBadge trainClass={kelas} />
+                          </span>
+                          <span className="font-bold text-slate-900">
+                            {count} <span className="text-slate-400 font-normal">({pct}%)</span>
+                          </span>
+                        </div>
+                        <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                          <div
+                            className={`h-full rounded-full ${barColor} transition-all duration-500`}
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="text-sm text-slate-400 font-semibold">Belum ada data kelas</div>
+              )}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+              <h3 className="text-sm font-bold font-display text-slate-900 mb-3">Aksi Cepat</h3>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <Link
+                  href="/admin/tambah"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-indigo-50 hover:bg-indigo-100 transition-colors border border-indigo-100"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center flex-shrink-0">
+                    <Plus size={18} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-900">Tambah Kereta</div>
+                    <div className="text-[11px] text-slate-500">Masukkan data kereta baru</div>
+                  </div>
+                </Link>
+                <Link
+                  href="/admin/jadwal"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-amber-50 hover:bg-amber-100 transition-colors border border-amber-100"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center flex-shrink-0">
+                    <CalendarCheck size={18} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-900">Atur Jadwal</div>
+                    <div className="text-[11px] text-slate-500">Kelola jadwal keberangkatan</div>
+                  </div>
+                </Link>
+                <Link
+                  href="/admin/status"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-emerald-50 hover:bg-emerald-100 transition-colors border border-emerald-100"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                    <AlertTriangle size={18} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-900">Update Status</div>
+                    <div className="text-[11px] text-slate-500">Perbarui status perjalanan</div>
+                  </div>
+                </Link>
+                <Link
+                  href="/admin/kereta"
+                  className="flex items-center gap-3 p-3 rounded-xl bg-sky-50 hover:bg-sky-100 transition-colors border border-sky-100"
+                >
+                  <div className="w-10 h-10 rounded-lg bg-sky-100 text-sky-600 flex items-center justify-center flex-shrink-0">
+                    <ListOrdered size={18} />
+                  </div>
+                  <div>
+                    <div className="text-sm font-bold text-slate-900">Data Kereta</div>
+                    <div className="text-[11px] text-slate-500">Lihat & kelola semua kereta</div>
+                  </div>
+                </Link>
+              </div>
+            </div>
+          </div>
+
+          {/* Train Status List — no origin/destination shown */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+            <div className="flex items-center justify-between px-5 py-3 border-b border-slate-100">
+              <div>
+                <h3 className="text-sm font-bold font-display text-slate-900">Status Perjalanan</h3>
+                <p className="text-[11px] text-slate-500">Ringkasan status seluruh kereta</p>
+              </div>
+              <Link href="/admin/status" className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 underline underline-offset-2 transition-colors flex items-center gap-1">
+                Kelola Status <ArrowRight size={12} />
+              </Link>
+            </div>
+            <div className="divide-y divide-slate-100">
+              {trains.map((t) => (
+                <div key={t.id} className="flex items-center gap-3 px-5 py-2.5 hover:bg-slate-50 transition-colors">
+                  <span className={`w-2 h-2 rounded-full flex-shrink-0 ${statusDotMap[t.status] || "bg-slate-300"}`} />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-bold text-slate-900 truncate">{t.nama}</div>
+                    <div className="text-[10px] text-slate-500 font-semibold">
+                      {t.tanggal} • {t.jam}
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <TrainClassBadge trainClass={t.kelas} />
+                    <StatusBadge status={t.status} />
+                  </div>
+                </div>
+              ))}
+            </div>
+            <Link href="/admin/kereta" className="block text-center text-[11px] font-semibold text-indigo-600 py-2.5 hover:bg-slate-50 transition-colors border-t border-slate-100">
+              Lihat Semua Data Kereta
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Empty welcome state — no trains and no revenue data */}
+      {!hasRevenueData && !hasTrains && (
+        <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center mb-4">
+            <Train size={32} className="text-indigo-600" />
+          </div>
+          <h2 className="text-xl font-bold font-display text-slate-900 mb-2">Selamat Datang di Panel Admin</h2>
+          <p className="text-sm text-slate-500 max-w-md mb-6">
+            Kelola seluruh data kereta, jadwal, status perjalanan, dan pantau transaksi dari satu dashboard.
+          </p>
+          <Link href="/admin/tambah" className="btn btn-primary">
+            + Tambah Kereta Pertama
+          </Link>
+          <div className="flex items-center gap-6 mt-8 text-xs text-slate-400 font-semibold">
+            <span>Kelola jadwal</span>
+            <span>•</span>
+            <span>Update status</span>
+            <span>•</span>
+            <span>Pantau transaksi</span>
+          </div>
+        </div>
+      )}
+
       <DbError message={dbError} />
     </AdminLayout>
   );
@@ -293,9 +500,15 @@ export async function getServerSideProps(context) {
   }
 
   try {
-    const summary = await getPurchaseSummary("month");
-    const dailyBreakdown = await getPurchaseSummaryByDate("month");
-    const revenueByStatus = await getPurchaseRevenueByStatus("month");
+    const [summary, dailyBreakdown, revenueByStatus, allTrains] = await Promise.all([
+      getPurchaseSummary("month"),
+      getPurchaseSummaryByDate("month"),
+      getPurchaseRevenueByStatus("month"),
+      getAllTrains(),
+    ]);
+
+    const trainStats = computeStats(allTrains);
+    const trains = allTrains.slice(0, 10);
 
     // Fetch 5 most recent purchases
     const recentResult = await getPaginatedPurchases({ period: "month" }, { page: 1, perPage: 5 });
@@ -307,6 +520,8 @@ export async function getServerSideProps(context) {
         dailyBreakdown,
         revenueByStatus,
         recentPurchases,
+        trainStats,
+        trains,
         dbError: null,
       },
     };
@@ -317,6 +532,8 @@ export async function getServerSideProps(context) {
         dailyBreakdown: [],
         revenueByStatus: { paid: { count: 0, revenue: 0 }, pending: { count: 0, revenue: 0 }, cancelled: { count: 0, revenue: 0 } },
         recentPurchases: [],
+        trainStats: { total: 0, on_time: 0, delay: 0, dibatalkan: 0 },
+        trains: [],
         dbError: getDbErrorMessage(err),
       },
     };
