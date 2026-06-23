@@ -5,10 +5,8 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <Head>
-        {/* Font preconnect for performance */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="description" content="TiketKAI - Platform pemesanan tiket kereta api Indonesia. Pesan tiket kereta dengan mudah, cek jadwal, dan lacak status pesanan." />
       </Head>
       <Component {...pageProps} />
     </>
