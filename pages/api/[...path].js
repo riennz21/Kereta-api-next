@@ -8,25 +8,27 @@ export const config = {
 };
 
 export default function handler(req, res) {
-  const pathSegments = Array.isArray(req.query.path) ? req.query.path : [req.query.path].filter(Boolean);
-  const pathname = `/${pathSegments.join("/")}`.replace(/\/+$/, "") || "/";
-  const searchParams = new URLSearchParams();
+  try {
+    const pathSegments = Array.isArray(req.query.path) ? req.query.path : [req.query.path].filter(Boolean);
+    const pathname = `/${pathSegments.join("/")}`.replace(/\/+$/, "") || "/";
+    const searchParams = new URLSearchParams();
 
-  for (const [key, value] of Object.entries(req.query)) {
-    if (key === "path") continue;
-    if (Array.isArray(value)) {
-      value.forEach((item) => searchParams.append(key, item));
-      continue;
+    for (const [key, value] of Object.entries(req.query)) {
+      if (key === "path") continue;
+      if (Array.isArray(value)) {
+        value.forEach((item) => searchParams.append(key, item));
+        continue;
+      }
+      if (value !== undefined) {
+        searchParams.set(key, value);
+      }
     }
-    if (value !== undefined) {
-      searchParams.set(key, value);
-    }
+
+    const query = searchParams.toString();
+    req.url = query ? `${pathname}?${query}` : pathname;
+    req.originalUrl = req.url;
+    return app(req, res);
+  } catch (error) {
+    res.status(500).json({ error: "Internal server error." });
   }
-
-  const query = searchParams.toString();
-  const nextUrl = query ? `${pathname}?${query}` : pathname;
-  req.url = nextUrl;
-  req.originalUrl = nextUrl;
-  delete req._parsedUrl;
-  return app(req, res);
 }
