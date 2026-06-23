@@ -132,6 +132,7 @@ export default function PemesananPage() {
 
   return (
     <PublicLayout title="Pemesanan Tiket">
+      <h1 className="sr-only">Pemesanan Tiket Kereta</h1>
       <div className="max-w-[1100px] mx-auto">
         <Link href="/jadwal"
           className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 mb-5 transition-colors">
@@ -163,10 +164,10 @@ export default function PemesananPage() {
 
               <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Nama Lengkap <span className="text-red-500">*</span></label>
+                  <label htmlFor="nama-lengkap" className="block text-xs font-bold text-slate-600 mb-1.5">Nama Lengkap <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <User size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input type="text" placeholder="Masukkan nama sesuai KTP" value={form.namaLengkap}
+                    <input id="nama-lengkap" type="text" placeholder="Masukkan nama sesuai KTP" value={form.namaLengkap}
                       onChange={handleChange("namaLengkap")}
                       className={`w-full h-[46px] pl-10 pr-4 rounded-xl border ${formErrors.namaLengkap ? "border-red-300 bg-red-50" : "border-slate-200 bg-slate-50/50"} text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all`} />
                   </div>
@@ -174,10 +175,10 @@ export default function PemesananPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5">NIK <span className="text-red-500">*</span></label>
+                  <label htmlFor="nik" className="block text-xs font-bold text-slate-600 mb-1.5">NIK <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <CreditCard size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input type="text" placeholder="16 digit NIK" maxLength={16} value={form.nik}
+                    <input id="nik" type="text" placeholder="16 digit NIK" maxLength={16} value={form.nik}
                       onChange={handleChange("nik")}
                       className={`w-full h-[46px] pl-10 pr-4 rounded-xl border ${formErrors.nik ? "border-red-300 bg-red-50" : "border-slate-200 bg-slate-50/50"} text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all`} />
                   </div>
@@ -185,10 +186,10 @@ export default function PemesananPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5">No. Handphone <span className="text-red-500">*</span></label>
+                  <label htmlFor="no-handphone" className="block text-xs font-bold text-slate-600 mb-1.5">No. Handphone <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input type="tel" placeholder="08XXXXXXXXXX" value={form.noHandphone}
+                    <input id="no-handphone" type="tel" placeholder="08XXXXXXXXXX" value={form.noHandphone}
                       onChange={handleChange("noHandphone")}
                       className={`w-full h-[46px] pl-10 pr-4 rounded-xl border ${formErrors.noHandphone ? "border-red-300 bg-red-50" : "border-slate-200 bg-slate-50/50"} text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all`} />
                   </div>
@@ -196,18 +197,18 @@ export default function PemesananPage() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Email (opsional)</label>
-                  <input type="email" placeholder="contoh@email.com" value={form.email}
+                  <label htmlFor="email" className="block text-xs font-bold text-slate-600 mb-1.5">Email (opsional)</label>
+                  <input id="email" type="email" placeholder="contoh@email.com" value={form.email}
                     onChange={handleChange("email")}
                     className={`w-full h-[46px] px-4 rounded-xl border ${formErrors.email ? "border-red-300 bg-red-50" : "border-slate-200 bg-slate-50/50"} text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all`} />
                   {formErrors.email && <p className="text-xs text-red-500 font-semibold mt-1"><AlertTriangle size={10} className="inline" /> {formErrors.email}</p>}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-600 mb-1.5">Pilihan Kursi <span className="text-red-500">*</span></label>
+                  <label htmlFor="pilihan-kursi" className="block text-xs font-bold text-slate-600 mb-1.5">Pilihan Kursi <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <Chair size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 z-10" />
-                    <select value={form.kursi} onChange={handleChange("kursi")}
+                    <select id="pilihan-kursi" value={form.kursi} onChange={handleChange("kursi")}
                       className={`w-full h-[46px] pl-10 pr-4 rounded-xl border ${formErrors.kursi ? "border-red-300 bg-red-50" : "border-slate-200 bg-slate-50/50"} text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all appearance-none cursor-pointer`}
                       style={{
                         backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364758b' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,

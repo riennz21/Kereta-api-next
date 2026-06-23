@@ -236,37 +236,37 @@ export default function CheckoutPage({ train }) {
                 <h2 className="text-lg font-bold font-display text-slate-900">Formulir Pemesanan</h2>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-600 mb-1.5 block">Nama Lengkap <span className="text-red-500">*</span></label>
+                  <label htmlFor="nama-pembeli" className="text-xs font-bold text-slate-600 mb-1.5 block">Nama Lengkap <span className="text-red-500">*</span></label>
                   <div className="relative">
                     <CreditCard size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input name="nama_pembeli" type="text"
+                    <input id="nama-pembeli" name="nama_pembeli" type="text"
                       className="w-full h-[46px] pl-10 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
                       placeholder="Masukkan nama sesuai KTP" value={form.nama_pembeli} onChange={handleChange} required />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-600 mb-1.5 block">Email</label>
+                  <label htmlFor="email-pembeli" className="text-xs font-bold text-slate-600 mb-1.5 block">Email</label>
                   <div className="relative">
                     <Mail size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input name="email_pembeli" type="email"
+                    <input id="email-pembeli" name="email_pembeli" type="email"
                       className="w-full h-[46px] pl-10 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
                       placeholder="contoh@email.com" value={form.email_pembeli} onChange={handleChange} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-600 mb-1.5 block">No. Telepon</label>
+                  <label htmlFor="telepon-pembeli" className="text-xs font-bold text-slate-600 mb-1.5 block">No. Telepon</label>
                   <div className="relative">
                     <Phone size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                    <input name="no_telepon" type="tel"
+                    <input id="telepon-pembeli" name="no_telepon" type="tel"
                       className="w-full h-[46px] pl-10 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
                       placeholder="081234567890" value={form.no_telepon} onChange={handleChange} />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-600 mb-1.5 block">Metode Pembayaran</label>
+                  <label htmlFor="metode-pembayaran" className="text-xs font-bold text-slate-600 mb-1.5 block">Metode Pembayaran</label>
                   <div className="grid grid-cols-1 gap-2">
                     {METODE_PEMBAYARAN.map((metode) => (
                       <label key={metode.value}
@@ -285,7 +285,8 @@ export default function CheckoutPage({ train }) {
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-slate-600 mb-1.5 block">Jumlah Tiket</label>
+                  <label htmlFor="jumlah-tiket" className="text-xs font-bold text-slate-600 mb-1.5 block">Jumlah Tiket</label>
+                  <input type="hidden" id="jumlah-tiket" />
                   <div className="flex items-center gap-3">
                     <button type="button"
                       className="w-10 h-10 rounded-xl border border-slate-200 bg-white flex items-center justify-center text-slate-700 font-bold hover:bg-indigo-50 hover:border-indigo-300 transition-all disabled:opacity-30"

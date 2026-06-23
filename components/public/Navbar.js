@@ -59,6 +59,7 @@ export default function Navbar() {
                         ? "nav-link active"
                         : "nav-link"
                     }
+                    aria-current={router.pathname === link.href ? "page" : undefined}
                   >
                     <Icon size={14} />
                     {link.label}
@@ -73,6 +74,8 @@ export default function Navbar() {
                 className={`profile-trigger ${profileOpen ? "active" : ""}`}
                 onClick={() => setProfileOpen((prev) => !prev)}
                 aria-label="Profil pengguna"
+                aria-expanded={profileOpen}
+                aria-haspopup="true"
               >
                 <span className="profile-avatar">{USER_NAME.charAt(0)}</span>
                 <span className="profile-name">{USER_NAME}</span>
@@ -121,7 +124,8 @@ export default function Navbar() {
         <button
           className="md:hidden w-10 h-10 rounded-xl border border-[rgba(15,23,42,0.08)] bg-white/80 flex items-center justify-center text-slate-700"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          aria-label="Toggle menu"
+          aria-label={mobileMenuOpen ? "Tutup menu navigasi" : "Buka menu navigasi"}
+          aria-expanded={mobileMenuOpen}
         >
           {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
         </button>

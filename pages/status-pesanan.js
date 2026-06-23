@@ -121,7 +121,7 @@ export default function StatusPesananPage() {
         <form onSubmit={handleSearch} className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
             <Search size={18} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#98a2b3]" />
-            <input type="text" placeholder="Masukkan kode booking (contoh: KAI-00001)" value={bookingCode}
+            <input type="text" aria-label="Kode booking" placeholder="Masukkan kode booking (contoh: KAI-00001)" value={bookingCode}
               onChange={(e) => setBookingCode(e.target.value)}
               className="input-control" style={{ paddingLeft: 44 }} required />
           </div>
@@ -137,9 +137,11 @@ export default function StatusPesananPage() {
       {loading && <LoadingState title="Mencari pesanan..." description="Memeriksa data pemesanan Anda." />}
 
       {!loading && searched && error && (
-        <EmptyState title="Pesanan Tidak Ditemukan"
-          description={error}
-          action={<button onClick={() => { setSearched(false); setError(""); }} className="btn btn-primary">Coba Lagi</button>} />
+        <div role="alert">
+          <EmptyState title="Pesanan Tidak Ditemukan"
+            description={error}
+            action={<button onClick={() => { setSearched(false); setError(""); }} className="btn btn-primary">Coba Lagi</button>} />
+        </div>
       )}
 
       {!loading && searched && trackingData && (

@@ -130,7 +130,7 @@ export default function DashboardPage({ filters, summary, allTrains }) {
       />
 
       {searchValidation.show && (
-        <div className="fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-[480px] w-[calc(100%-24px)] animate-slide-in">
+        <div role="alert" className="fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-[480px] w-[calc(100%-24px)] animate-slide-in">
           <div className="bg-gradient-to-r from-red-50 to-red-50/80 rounded-2xl p-4 border border-red-200 shadow-lg flex items-start gap-3">
             <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center flex-shrink-0">
               <AlertTriangle size={22} className="text-red-500" />
@@ -214,12 +214,13 @@ export default function DashboardPage({ filters, summary, allTrains }) {
 
               <div className="mt-4 grid grid-cols-1 items-end gap-3 md:grid-cols-12">
                 <div className="md:col-span-4">
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <label htmlFor="from-station" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Dari
                   </label>
                   <div className="relative">
                     <MapPin className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <select
+                      id="from-station"
                       value={fromId}
                       onChange={(e) => setFromId(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pr-3 pl-10 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none"
@@ -244,12 +245,13 @@ export default function DashboardPage({ filters, summary, allTrains }) {
                 </div>
 
                 <div className="md:col-span-4">
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <label htmlFor="to-station" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Tujuan
                   </label>
                   <div className="relative">
                     <MapPin className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <select
+                      id="to-station"
                       value={toId}
                       onChange={(e) => setToId(e.target.value)}
                       className="w-full rounded-lg border border-slate-200 bg-slate-50 py-3 pr-3 pl-10 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none"
@@ -263,12 +265,13 @@ export default function DashboardPage({ filters, summary, allTrains }) {
                 </div>
 
                 <div className="md:col-span-3">
-                  <label className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
+                  <label htmlFor="travel-date" className="mb-1.5 block text-xs font-semibold uppercase tracking-wide text-slate-500">
                     Tanggal
                   </label>
                   <div className="relative">
                     <Calendar className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <input
+                      id="travel-date"
                       type="date"
                       value={date}
                       min={today}

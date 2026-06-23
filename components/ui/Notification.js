@@ -75,6 +75,7 @@ export default function Notification({
         {onClose && (
           <button
             onClick={() => { setVisible(false); onClose?.(); }}
+            aria-label="Tutup notifikasi"
             className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-black/5 transition-colors"
           >
             <X size={16} className="text-current opacity-50" />

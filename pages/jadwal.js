@@ -96,6 +96,7 @@ export default function JadwalPage() {
               <input
                 type="text"
                 placeholder="Stasiun asal"
+                aria-label="Stasiun asal"
                 value={searchFrom}
                 onChange={(e) => setSearchFrom(e.target.value)}
                 className="w-full h-[46px] pl-10 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
@@ -107,6 +108,7 @@ export default function JadwalPage() {
               onClick={() => { setSearchFrom(searchTo); setSearchTo(searchFrom); }}
               className="swap-btn"
               style={{ marginBottom: 0, width: 44, height: 44 }}
+              aria-label="Tukar rute"
             >
               <ArrowLeftRight size={18} />
             </button>
@@ -115,6 +117,7 @@ export default function JadwalPage() {
               <input
                 type="text"
                 placeholder="Stasiun tujuan"
+                aria-label="Stasiun tujuan"
                 value={searchTo}
                 onChange={(e) => setSearchTo(e.target.value)}
                 className="w-full h-[46px] pl-10 pr-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all"
@@ -127,6 +130,7 @@ export default function JadwalPage() {
               <Calendar size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="date"
+                aria-label="Tanggal keberangkatan"
                 value={searchDate}
                 onChange={(e) => setSearchDate(e.target.value)}
                 min={today}
@@ -135,6 +139,7 @@ export default function JadwalPage() {
             </div>
             <div className="relative">
               <select
+                aria-label="Filter kelas kereta"
                 value={filterClass}
                 onChange={(e) => setFilterClass(e.target.value)}
                 className="w-full h-[46px] px-4 rounded-xl border border-slate-200 bg-slate-50/50 text-sm font-medium text-slate-900 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 focus:outline-none transition-all appearance-none cursor-pointer"
@@ -166,7 +171,7 @@ export default function JadwalPage() {
         </form>
 
         {validationError && (
-          <div className="flex items-center gap-2 mt-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold">
+          <div role="alert" className="flex items-center gap-2 mt-3 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm font-semibold">
             <AlertTriangle size={16} />
             {validationError}
           </div>

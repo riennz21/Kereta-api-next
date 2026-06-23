@@ -325,6 +325,7 @@ export default function CekPesananPage() {
 
   return (
     <PublicLayout title="E-Tiket">
+      <h1 className="sr-only">E-Tiket Kereta</h1>
       <div className="max-w-[720px] mx-auto">
         <Link href="/jadwal"
           className="inline-flex items-center gap-2 text-sm font-bold text-slate-500 hover:text-indigo-600 mb-5 transition-colors">
