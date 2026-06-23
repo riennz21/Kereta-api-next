@@ -10,7 +10,7 @@ import { formatCurrency } from "../lib/train-utils";
 
 const STATUS_CONFIG = {
   paid: { label: "Lunas", badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle, statColor: "text-emerald-600", statBg: "bg-emerald-500" },
-  pending: { label: "Menunggu", badge: "bg-amber-50 text-amber-700 border border-amber-200", icon: Clock, statColor: "text-amber-600", statBg: "bg-amber-500" },
+  pending: { label: "Menunggu Pembayaran", badge: "bg-amber-50 text-amber-700 border border-amber-200", icon: Clock, statColor: "text-amber-600", statBg: "bg-amber-500" },
   cancelled: { label: "Dibatalkan", badge: "bg-red-50 text-red-700 border border-red-200", icon: XCircle, statColor: "text-red-500", statBg: "bg-red-500" },
 };
 
@@ -138,7 +138,7 @@ export default function RiwayatPage() {
         {/* Clickable stat cards for each status */}
         {[
           { key: "paid", label: "Lunas", count: statusCounts.paid, color: "text-emerald-600", accent: "bg-emerald-500" },
-          { key: "pending", label: "Menunggu", count: statusCounts.pending, color: "text-amber-600", accent: "bg-amber-500" },
+          { key: "pending", label: "Menunggu Pembayaran", count: statusCounts.pending, color: "text-amber-600", accent: "bg-amber-500" },
           { key: "cancelled", label: "Dibatalkan", count: statusCounts.cancelled, color: "text-red-500", accent: "bg-red-500" },
         ].map((stat) => {
           const isActive = statusFilter === stat.key;

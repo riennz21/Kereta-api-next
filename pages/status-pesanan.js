@@ -11,7 +11,7 @@ import { formatCurrency } from "../lib/train-utils";
 
 const TRACKING_STEPS = [
   { key: "booking", label: "Pemesanan", icon: FileText },
-  { key: "payment", label: "Pembayaran", icon: CreditCard },
+  { key: "payment", label: "Menunggu Pembayaran", icon: CreditCard },
   { key: "confirmation", label: "Konfirmasi", icon: CheckCircle },
   { key: "boarding", label: "Boarding", icon: Train },
   { key: "completed", label: "Selesai", icon: CheckCircle },

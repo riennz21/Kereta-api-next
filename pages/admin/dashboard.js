@@ -10,7 +10,7 @@ import { formatCurrency } from "../../lib/train-utils";
 
 const STATUS_CONFIG = {
   paid: { label: "Lunas", badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle },
-  pending: { label: "Menunggu", badge: "bg-amber-50 text-amber-700 border border-amber-200", icon: ClockIcon },
+  pending: { label: "Menunggu Pembayaran", badge: "bg-amber-50 text-amber-700 border border-amber-200", icon: ClockIcon },
   cancelled: { label: "Dibatalkan", badge: "bg-red-50 text-red-700 border border-red-200", icon: XCircle },
 };
 

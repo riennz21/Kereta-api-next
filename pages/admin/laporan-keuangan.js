@@ -24,7 +24,7 @@ const PERIOD_LABELS = {
 
 const STATUS_CONFIG = {
   paid: { label: "Lunas", badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle },
-  pending: { label: "Menunggu", badge: "bg-amber-50 text-amber-700 border border-amber-200", icon: ClockIcon },
+  pending: { label: "Menunggu Pembayaran", badge: "bg-amber-50 text-amber-700 border border-amber-200", icon: ClockIcon },
   cancelled: { label: "Dibatalkan", badge: "bg-red-50 text-red-700 border border-red-200", icon: XCircle },
 };
 
@@ -86,7 +86,7 @@ export default function AdminLaporanKeuanganPage({
   const statusTabs = [
     { key: "all", label: "Semua Status" },
     { key: "paid", label: "Lunas" },
-    { key: "pending", label: "Menunggu" },
+    { key: "pending", label: "Menunggu Pembayaran" },
     { key: "cancelled", label: "Dibatalkan" },
   ];
 
@@ -188,7 +188,7 @@ export default function AdminLaporanKeuanganPage({
   // Status breakdown chips
   const statusBreakdown = [
     { key: "paid", count: statusCounts?.paid ?? 0, label: "Lunas", color: "bg-emerald-500" },
-    { key: "pending", count: statusCounts?.pending ?? 0, label: "Menunggu", color: "bg-amber-500" },
+    { key: "pending", count: statusCounts?.pending ?? 0, label: "Menunggu Pembayaran", color: "bg-amber-500" },
     { key: "cancelled", count: statusCounts?.cancelled ?? 0, label: "Dibatalkan", color: "bg-red-500" },
   ];
   const totalStatusCount = statusBreakdown.reduce((sum, s) => sum + s.count, 0);
