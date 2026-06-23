@@ -5,6 +5,7 @@ import { Train, Search, Calendar, Clock, History, HelpCircle, Menu, X, Ticket } 
 
 const links = [
   { href: "/", label: "Beranda", icon: Train },
+  { href: "/dashboard", label: "Dashboard", icon: Ticket },
   { href: "/jadwal", label: "Jadwal", icon: Calendar },
   { href: "/status", label: "Status", icon: Clock },
   { href: "/cek-pesanan", label: "Cek Pesanan", icon: Search },
