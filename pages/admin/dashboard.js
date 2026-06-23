@@ -1,22 +1,12 @@
 import Link from "next/link";
 import { CheckCircle, XCircle, Clock as ClockIcon, TrendingUp, Calendar, ArrowRight } from "lucide-react";
 import AdminLayout from "../../components/admin/AdminLayout";
-import AdminTrainFilters from "../../components/admin/AdminTrainFilters";
-import StatusBadge from "../../components/StatusBadge";
-import TrainClassBadge from "../../components/TrainClassBadge";
-import EmptyState from "../../components/ui/EmptyState";
+
 import DbError, { getDbErrorMessage } from "../../components/ui/DbError";
 import MetricGrid from "../../components/ui/MetricGrid";
-import { getAllTrains, getPaginatedPurchases, getPurchaseSummary, getPurchaseSummaryByDate, getPurchaseRevenueByStatus } from "../../lib/db";
+import { getPaginatedPurchases, getPurchaseSummary, getPurchaseSummaryByDate, getPurchaseRevenueByStatus } from "../../lib/db";
 import { requireAdminPage } from "../../lib/page-auth";
-import {
-  computeClassCounts,
-  computeStats,
-  formatCurrency,
-  getFiltersFromQuery,
-  getImageUrl,
-  hasActiveFilters,
-} from "../../lib/train-utils";
+import { formatCurrency } from "../../lib/train-utils";
 
 const STATUS_CONFIG = {
   paid: { label: "Lunas", badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle },
@@ -126,23 +116,12 @@ function DonutChart({ paid, pending, cancelled }) {
 }
 
 export default function AdminDashboardPage({
-  data,
-  filters,
-  stats,
-  classCounts,
   summary,
   dailyBreakdown,
   revenueByStatus,
   recentPurchases,
   dbError,
 }) {
-  const statItems = [
-    { label: "Total Kereta", value: stats.total, helper: "Data pada tampilan dashboard", tone: "brand" },
-    { label: "On Time", value: stats.on_time, helper: "Perjalanan tepat waktu", tone: "success" },
-    { label: "Delay", value: stats.delay, helper: "Perlu tindak lanjut", tone: "danger" },
-    { label: "Dibatalkan", value: stats.dibatalkan, helper: "Status pembatalan aktif", tone: "navy" },
-  ];
-
   const revenueItems = [
     {
       label: "Total Pendapatan",
@@ -173,12 +152,6 @@ export default function AdminDashboardPage({
       tone: "danger",
     },
   ];
-
-  const classItems = Object.entries(classCounts).map(([className, count]) => ({
-    label: className,
-    value: count,
-    helper: "Jumlah kereta per kelas",
-  }));
 
   const hasRevenueData = (summary.total_pendapatan || 0) > 0;
   const hasChartData = dailyBreakdown && dailyBreakdown.length > 0;
@@ -309,109 +282,6 @@ export default function AdminDashboardPage({
       )}
 
       <DbError message={dbError} />
-
-      {/* Train Operations Section */}
-      <div className="mb-4">
-        <h2 className="text-lg font-bold font-display text-slate-900 mb-3">Operasional Kereta</h2>
-        <AdminTrainFilters
-          action="/admin/dashboard"
-          filters={filters}
-          showReset={hasActiveFilters(filters)}
-          resetHref="/admin/dashboard"
-        />
-      </div>
-
-      <MetricGrid items={statItems} className="admin-stats-grid" />
-      {classItems.length ? <MetricGrid items={classItems} className="admin-stats-grid" /> : null}
-
-      {data.length ? (
-        <div className="table-card">
-          <div className="table-toolbar">
-            <div className="table-toolbar-copy">
-              <h2>Snapshot Operasional</h2>
-              <p>Gunakan daftar ini untuk memeriksa data kereta terbaru sebelum masuk ke pengelolaan detail.</p>
-            </div>
-          </div>
-
-          <table className="data-table">
-            <thead>
-              <tr>
-                <th>Foto</th>
-                <th>Kereta</th>
-                <th>Rute</th>
-                <th>Kelas</th>
-                <th>Jadwal</th>
-                <th>Status</th>
-                <th>Harga</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((train) => (
-                <tr key={train.id}>
-                  <td>
-                    {train.gambar ? (
-                      <img loading="lazy" src={getImageUrl(train.gambar)} alt={`Foto ${train.nama}`} className="table-image" />
-                    ) : (
-                      <div className="table-image preview-empty">-</div>
-                    )}
-                  </td>
-                  <td>
-                    <span className="table-title">{train.nama}</span>
-                    <span className="table-subtitle">{train.deskripsi || "Deskripsi belum tersedia."}</span>
-                  </td>
-                  <td>
-                    {train.asal} - {train.tujuan}
-                  </td>
-                  <td>
-                    <TrainClassBadge trainClass={train.kelas} />
-                  </td>
-                  <td>
-                    {train.tanggal}
-                    <br />
-                    {train.jam}
-                  </td>
-                  <td>
-                    <StatusBadge status={train.status} />
-                  </td>
-                  <td>{formatCurrency(train.harga)}</td>
-                  <td>
-                    <div className="inline-actions">
-                      <Link href={`/admin/edit/${train.id}`} className="btn btn-edit">
-                        Edit
-                      </Link>
-                      <form
-                        action={`/api/trains/${train.id}/delete`}
-                        method="post"
-                        className="compact-form"
-                        onSubmit={(event) => {
-                          if (!window.confirm("Hapus data?")) {
-                            event.preventDefault();
-                          }
-                        }}
-                      >
-                        <button type="submit" className="btn btn-delete">
-                          Hapus
-                        </button>
-                      </form>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <EmptyState
-          title="Belum ada data operasional"
-          description="Mulai tambahkan kereta baru agar dashboard dapat menampilkan statistik dan tabel operasional."
-          action={
-            <Link href="/admin/tambah" className="btn btn-primary">
-              Tambah Kereta
-            </Link>
-          }
-        />
-      )}
     </AdminLayout>
   );
 }
@@ -423,10 +293,6 @@ export async function getServerSideProps(context) {
   }
 
   try {
-    const filters = getFiltersFromQuery(context.query);
-    const data = await getAllTrains(filters);
-
-    // Fetch revenue data for the last 30 days
     const summary = await getPurchaseSummary("month");
     const dailyBreakdown = await getPurchaseSummaryByDate("month");
     const revenueByStatus = await getPurchaseRevenueByStatus("month");
@@ -437,10 +303,6 @@ export async function getServerSideProps(context) {
 
     return {
       props: {
-        data,
-        filters,
-        stats: computeStats(data),
-        classCounts: computeClassCounts(data),
         summary,
         dailyBreakdown,
         revenueByStatus,
@@ -449,13 +311,8 @@ export async function getServerSideProps(context) {
       },
     };
   } catch (err) {
-    const isDbError = err.message?.includes("DATABASE_UNAVAILABLE");
     return {
       props: {
-        data: [],
-        filters: getFiltersFromQuery({}),
-        stats: { total: 0, on_time: 0, delay: 0, dibatalkan: 0 },
-        classCounts: {},
         summary: { total_transaksi: 0, total_pendapatan: 0, total_tiket_terjual: 0 },
         dailyBreakdown: [],
         revenueByStatus: { paid: { count: 0, revenue: 0 }, pending: { count: 0, revenue: 0 }, cancelled: { count: 0, revenue: 0 } },
