@@ -3,3 +3,16 @@ node_modules
 out
 .vercel
 npm-debug.log*
+
+# Local environment
+.env.local
+.env.*.local
+
+# SQLite database files
+*.db
+*.db-shm
+*.db-wal
+
+# Uploaded files (local storage)
+public/uploads/
+uploads/
