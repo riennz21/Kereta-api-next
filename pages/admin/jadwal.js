@@ -1,10 +1,11 @@
 import AdminLayout from "../../components/admin/AdminLayout";
 import EmptyState from "../../components/ui/EmptyState";
+import DbError, { getDbErrorMessage } from "../../components/ui/DbError";
 import MetricGrid from "../../components/ui/MetricGrid";
 import { getScheduleRows } from "../../lib/db";
 import { requireAdminPage } from "../../lib/page-auth";
 
-export default function AdminJadwalPage({ data }) {
+export default function AdminJadwalPage({ data, dbError }) {
   const uniqueTrains = new Set(data.map((row) => row.nama)).size;
   const metricItems = [
     { label: "Total Jadwal", value: data.length, helper: "Baris jadwal aktif", tone: "brand" },
@@ -17,6 +18,8 @@ export default function AdminJadwalPage({ data }) {
       description="Periksa daftar keberangkatan untuk memastikan tanggal dan jam perjalanan dengan benar."
       activePage="jadwal"
     >
+      <DbError message={dbError} />
+
       <MetricGrid items={metricItems} className="admin-stats-grid" />
 
       {data.length ? (
@@ -63,9 +66,19 @@ export async function getServerSideProps(context) {
     return redirect;
   }
 
-  return {
-    props: {
-      data: await getScheduleRows(),
-    },
-  };
+  try {
+    return {
+      props: {
+        data: await getScheduleRows(),
+        dbError: null,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        data: [],
+        dbError: getDbErrorMessage(err),
+      },
+    };
+  }
 }

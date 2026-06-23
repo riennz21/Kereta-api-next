@@ -5,6 +5,7 @@ import AdminTrainFilters from "../../components/admin/AdminTrainFilters";
 import StatusBadge from "../../components/StatusBadge";
 import TrainClassBadge from "../../components/TrainClassBadge";
 import EmptyState from "../../components/ui/EmptyState";
+import DbError, { getDbErrorMessage } from "../../components/ui/DbError";
 import MetricGrid from "../../components/ui/MetricGrid";
 import { getAllTrains, getPaginatedPurchases, getPurchaseSummary, getPurchaseSummaryByDate, getPurchaseRevenueByStatus } from "../../lib/db";
 import { requireAdminPage } from "../../lib/page-auth";
@@ -133,6 +134,7 @@ export default function AdminDashboardPage({
   dailyBreakdown,
   revenueByStatus,
   recentPurchases,
+  dbError,
 }) {
   const statItems = [
     { label: "Total Kereta", value: stats.total, helper: "Data pada tampilan dashboard", tone: "brand" },
@@ -306,6 +308,8 @@ export default function AdminDashboardPage({
         </div>
       )}
 
+      <DbError message={dbError} />
+
       {/* Train Operations Section */}
       <div className="mb-4">
         <h2 className="text-lg font-bold font-display text-slate-900 mb-3">Operasional Kereta</h2>
@@ -418,28 +422,46 @@ export async function getServerSideProps(context) {
     return redirect;
   }
 
-  const filters = getFiltersFromQuery(context.query);
-  const data = await getAllTrains(filters);
+  try {
+    const filters = getFiltersFromQuery(context.query);
+    const data = await getAllTrains(filters);
 
-  // Fetch revenue data for the last 30 days
-  const summary = await getPurchaseSummary("month");
-  const dailyBreakdown = await getPurchaseSummaryByDate("month");
-  const revenueByStatus = await getPurchaseRevenueByStatus("month");
+    // Fetch revenue data for the last 30 days
+    const summary = await getPurchaseSummary("month");
+    const dailyBreakdown = await getPurchaseSummaryByDate("month");
+    const revenueByStatus = await getPurchaseRevenueByStatus("month");
 
-  // Fetch 5 most recent purchases
-  const recentResult = await getPaginatedPurchases({ period: "month" }, { page: 1, perPage: 5 });
-  const recentPurchases = recentResult.rows || [];
+    // Fetch 5 most recent purchases
+    const recentResult = await getPaginatedPurchases({ period: "month" }, { page: 1, perPage: 5 });
+    const recentPurchases = recentResult.rows || [];
 
-  return {
-    props: {
-      data,
-      filters,
-      stats: computeStats(data),
-      classCounts: computeClassCounts(data),
-      summary,
-      dailyBreakdown,
-      revenueByStatus,
-      recentPurchases,
-    },
-  };
+    return {
+      props: {
+        data,
+        filters,
+        stats: computeStats(data),
+        classCounts: computeClassCounts(data),
+        summary,
+        dailyBreakdown,
+        revenueByStatus,
+        recentPurchases,
+        dbError: null,
+      },
+    };
+  } catch (err) {
+    const isDbError = err.message?.includes("DATABASE_UNAVAILABLE");
+    return {
+      props: {
+        data: [],
+        filters: getFiltersFromQuery({}),
+        stats: { total: 0, on_time: 0, delay: 0, dibatalkan: 0 },
+        classCounts: {},
+        summary: { total_transaksi: 0, total_pendapatan: 0, total_tiket_terjual: 0 },
+        dailyBreakdown: [],
+        revenueByStatus: { paid: { count: 0, revenue: 0 }, pending: { count: 0, revenue: 0 }, cancelled: { count: 0, revenue: 0 } },
+        recentPurchases: [],
+        dbError: getDbErrorMessage(err),
+      },
+    };
+  }
 }

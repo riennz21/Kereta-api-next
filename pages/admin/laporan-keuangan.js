@@ -5,6 +5,7 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import MetricGrid from "../../components/ui/MetricGrid";
 import Pagination from "../../components/public/Pagination";
 import EmptyState from "../../components/ui/EmptyState";
+import DbError, { getDbErrorMessage } from "../../components/ui/DbError";
 import { requireAdminPage } from "../../lib/page-auth";
 import { formatCurrency } from "../../lib/train-utils";
 import {
@@ -65,6 +66,7 @@ export default function AdminLaporanKeuanganPage({
   statusCounts,
   revenueByStatus,
   activeStatus,
+  dbError,
 }) {
   const todayStr = useMemo(() => new Date().toISOString().split("T")[0], []);
   const [dateFrom, setDateFrom] = useState(startDate || "");
@@ -197,6 +199,8 @@ export default function AdminLaporanKeuanganPage({
       description="Pantau pendapatan, jumlah transaksi, dan tiket terjual berdasarkan periode dan status pembayaran."
       activePage="laporan-keuangan"
     >
+      <DbError message={dbError} />
+
       <MetricGrid items={metricItems} className="admin-stats-grid" />
 
       {/* Revenue per Status Card */}
@@ -516,59 +520,80 @@ export async function getServerSideProps(context) {
     return redirect;
   }
 
-  const period = context.query.period || "all";
-  const startDate = context.query.start_date || "";
-  const endDate = context.query.end_date || "";
-  const activeStatus = context.query.status || "";
-  const requestedPage = Math.max(1, Number(context.query.page) || 1);
+  try {
+    const period = context.query.period || "all";
+    const startDate = context.query.start_date || "";
+    const endDate = context.query.end_date || "";
+    const activeStatus = context.query.status || "";
+    const requestedPage = Math.max(1, Number(context.query.page) || 1);
 
-  const isCustomRange = !["today", "week", "month", "all"].includes(period) && startDate && endDate;
-  const actualPeriod = isCustomRange ? "custom" : period;
+    const isCustomRange = !["today", "week", "month", "all"].includes(period) && startDate && endDate;
+    const actualPeriod = isCustomRange ? "custom" : period;
 
-  const filterParams = isCustomRange
-    ? { startDate, endDate, ...(activeStatus ? { status: activeStatus } : {}) }
-    : { period, ...(activeStatus ? { status: activeStatus } : {}) };
+    const filterParams = isCustomRange
+      ? { startDate, endDate, ...(activeStatus ? { status: activeStatus } : {}) }
+      : { period, ...(activeStatus ? { status: activeStatus } : {}) };
 
-  const paginated = await getPaginatedPurchases(filterParams, { page: requestedPage, perPage: PER_PAGE });
-  const summary = await getPurchaseSummary(
-    isCustomRange ? "custom" : period,
-    isCustomRange ? startDate : "",
-    isCustomRange ? endDate : "",
-  );
+    const paginated = await getPaginatedPurchases(filterParams, { page: requestedPage, perPage: PER_PAGE });
+    const summary = await getPurchaseSummary(
+      isCustomRange ? "custom" : period,
+      isCustomRange ? startDate : "",
+      isCustomRange ? endDate : "",
+    );
 
-  const revenueByStatus = await getPurchaseRevenueByStatus(
-    isCustomRange ? "custom" : period,
-    isCustomRange ? startDate : "",
-    isCustomRange ? endDate : "",
-  );
+    const revenueByStatus = await getPurchaseRevenueByStatus(
+      isCustomRange ? "custom" : period,
+      isCustomRange ? startDate : "",
+      isCustomRange ? endDate : "",
+    );
 
-  // Derive status counts from revenue data to avoid a separate DB query
-  const statusCounts = {
-    paid: revenueByStatus.paid?.count || 0,
-    pending: revenueByStatus.pending?.count || 0,
-    cancelled: revenueByStatus.cancelled?.count || 0,
-  };
+    // Derive status counts from revenue data to avoid a separate DB query
+    const statusCounts = {
+      paid: revenueByStatus.paid?.count || 0,
+      pending: revenueByStatus.pending?.count || 0,
+      cancelled: revenueByStatus.cancelled?.count || 0,
+    };
 
-  const dailyBreakdown = isCustomRange
-    ? await getPurchaseSummaryByDate("custom", startDate, endDate)
-    : period !== "all"
-      ? await getPurchaseSummaryByDate(period)
-      : [];
+    const dailyBreakdown = isCustomRange
+      ? await getPurchaseSummaryByDate("custom", startDate, endDate)
+      : period !== "all"
+        ? await getPurchaseSummaryByDate(period)
+        : [];
 
-  return {
-    props: {
-      period: actualPeriod,
-      startDate,
-      endDate,
-      data: paginated.rows,
-      summary,
-      statusCounts,
-      revenueByStatus,
-      dailyBreakdown,
-      page: paginated.page,
-      totalPages: paginated.totalPages,
-      total: paginated.total,
-      activeStatus: activeStatus || null,
-    },
-  };
+    return {
+      props: {
+        period: actualPeriod,
+        startDate,
+        endDate,
+        data: paginated.rows,
+        summary,
+        statusCounts,
+        revenueByStatus,
+        dailyBreakdown,
+        page: paginated.page,
+        totalPages: paginated.totalPages,
+        total: paginated.total,
+        activeStatus: activeStatus || null,
+        dbError: null,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        period: "all",
+        startDate: "",
+        endDate: "",
+        data: [],
+        summary: { total_transaksi: 0, total_pendapatan: 0, total_tiket_terjual: 0 },
+        statusCounts: { paid: 0, pending: 0, cancelled: 0 },
+        revenueByStatus: { paid: { count: 0, revenue: 0 }, pending: { count: 0, revenue: 0 }, cancelled: { count: 0, revenue: 0 } },
+        dailyBreakdown: [],
+        page: 1,
+        totalPages: 1,
+        total: 0,
+        activeStatus: null,
+        dbError: getDbErrorMessage(err),
+      },
+    };
+  }
 }
