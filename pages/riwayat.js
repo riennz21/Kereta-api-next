@@ -9,9 +9,9 @@ import EmptyState from "../components/ui/EmptyState";
 import { formatCurrency } from "../lib/train-utils";
 
 const STATUS_CONFIG = {
-  paid: { label: "Lunas", badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle },
-  pending: { label: "Menunggu", badge: "bg-blue-50 text-blue-700 border border-blue-200", icon: Clock },
-  cancelled: { label: "Dibatalkan", badge: "bg-red-50 text-red-700 border border-red-200", icon: XCircle },
+  paid: { label: "Lunas", badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle, statColor: "text-emerald-600", statBg: "bg-emerald-500" },
+  pending: { label: "Menunggu", badge: "bg-amber-50 text-amber-700 border border-amber-200", icon: Clock, statColor: "text-amber-600", statBg: "bg-amber-500" },
+  cancelled: { label: "Dibatalkan", badge: "bg-red-50 text-red-700 border border-red-200", icon: XCircle, statColor: "text-red-500", statBg: "bg-red-500" },
 };
 
 const ITEMS_PER_PAGE = 10;
@@ -74,26 +74,33 @@ export default function RiwayatPage() {
     fetchPurchases(page, debouncedSearch, statusFilter);
   }, [page, debouncedSearch, statusFilter, fetchPurchases]);
 
-  // Stats are fetched from the summary endpoint (unfiltered, for dashboard display)
-  const [stats, setStats] = useState({ total: 0, completed: 0, upcoming: 0, cancelled: 0 });
+  // Fetch accurate per-status counts from the dedicated endpoint
+  const [statusCounts, setStatusCounts] = useState({ paid: 0, pending: 0, cancelled: 0 });
   useEffect(() => {
-    const fetchStats = async () => {
+    const fetchStatusCounts = async () => {
       try {
-        const res = await fetch("/api/purchases/summary?period=all");
+        const res = await fetch("/api/purchases/status-counts?period=all");
         if (!res.ok) return;
         const data = await res.json();
-        setStats({
-          total: data.total_transaksi || 0,
-          completed: data.total_transaksi || 0,
-          upcoming: 0,
-          cancelled: 0,
+        setStatusCounts({
+          paid: data.paid || 0,
+          pending: data.pending || 0,
+          cancelled: data.cancelled || 0,
         });
       } catch {
         // Ignore
       }
     };
-    fetchStats();
+    fetchStatusCounts();
   }, []);
+
+  const totalStatusCounts = statusCounts.paid + statusCounts.pending + statusCounts.cancelled;
+
+  // Clicking a stat card sets the corresponding status filter
+  const handleStatClick = (status) => {
+    setStatusFilter(status);
+    setPage(1);
+  };
 
   const handlePageChange = (newPage) => {
     if (newPage < 1 || newPage > totalPages) return;
@@ -119,17 +126,50 @@ export default function RiwayatPage() {
       </section>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-        {[
-          { label: "Total Pesanan", value: total, color: "text-indigo-600" },
-          { label: "Lunas", value: stats.completed, color: "text-emerald-600" },
-          { label: "Menunggu", value: stats.upcoming, color: "text-blue-600" },
-          { label: "Dibatalkan", value: stats.cancelled, color: "text-red-500" },
-        ].map((stat) => (
-          <div key={stat.label} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
-            <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500 mb-1">{stat.label}</div>
-            <div className={`text-2xl font-bold font-display ${stat.color}`}>{stat.value}</div>
+        {/* Total — always visible, no filter */}
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
+            <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">Total Pesanan</div>
           </div>
-        ))}
+          <div className="text-2xl font-bold font-display text-indigo-600">{totalStatusCounts}</div>
+        </div>
+
+        {/* Clickable stat cards for each status */}
+        {[
+          { key: "paid", label: "Lunas", count: statusCounts.paid, color: "text-emerald-600", accent: "bg-emerald-500" },
+          { key: "pending", label: "Menunggu", count: statusCounts.pending, color: "text-amber-600", accent: "bg-amber-500" },
+          { key: "cancelled", label: "Dibatalkan", count: statusCounts.cancelled, color: "text-red-500", accent: "bg-red-500" },
+        ].map((stat) => {
+          const isActive = statusFilter === stat.key;
+          return (
+            <button key={stat.key} onClick={() => handleStatClick(isActive ? "all" : stat.key)}
+              className={`relative bg-white rounded-2xl border p-4 text-left transition-all duration-200 ${
+                isActive
+                  ? "border-indigo-300 shadow-[0_4px_12px_rgba(79,70,229,0.12)] ring-2 ring-indigo-100"
+                  : "border-slate-200 shadow-sm hover:border-slate-300 hover:shadow-md"
+              }`}>
+              {isActive && (
+                <div className="absolute -top-px left-4 right-4 h-0.5 bg-gradient-to-r from-indigo-600 to-indigo-400 rounded-full" />
+              )}
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-[10px] font-bold uppercase tracking-[0.1em] text-slate-500">{stat.label}</div>
+                {stat.count > 0 && (
+                  <div className={`w-2 h-2 rounded-full ${stat.accent} ${isActive ? "opacity-100" : "opacity-40"}`} />
+                )}
+              </div>
+              <div className={`text-2xl font-bold font-display transition-colors ${isActive ? "text-indigo-600" : stat.color}`}>
+                {stat.count}
+              </div>
+              {totalStatusCounts > 0 && (
+                <div className="mt-2 h-1 rounded-full bg-slate-100 overflow-hidden">
+                  <div className={`h-full rounded-full transition-all duration-300 ${stat.accent}`}
+                    style={{ width: `${(stat.count / totalStatusCounts) * 100}%`, opacity: isActive ? 0.8 : 0.35 }} />
+                </div>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       <div className="flex items-center gap-3 mb-5 flex-wrap">
@@ -141,14 +181,32 @@ export default function RiwayatPage() {
         </div>
         <div className="flex items-center gap-2">
           <Filter size={14} className="text-slate-500" />
-          {["all", "paid", "pending", "cancelled"].map((status) => (
-            <button key={status} onClick={() => setStatusFilter(status)}
-              className={`px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                statusFilter === status ? "bg-slate-900 text-white" : "bg-white text-slate-600 border border-slate-200 hover:border-indigo-300"
-              }`}>
-              {status === "all" ? "Semua" : STATUS_CONFIG[status]?.label || status}
-            </button>
-          ))}
+          {["all", "paid", "pending", "cancelled"].map((s) => {
+            const isActive = statusFilter === s;
+            const cfg = STATUS_CONFIG[s];
+            const count = s === "all" ? totalStatusCounts : statusCounts[s] || 0;
+            return (
+              <button key={s} onClick={() => setStatusFilter(s)}
+                className={`relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all whitespace-nowrap ${
+                  isActive
+                    ? "bg-slate-900 text-white shadow-sm"
+                    : "bg-white text-slate-600 border border-slate-200 hover:border-indigo-300"
+                }`}>
+                {s === "all" ? (
+                  <>
+                    <span>Semua</span>
+                    {count > 0 && <span className={`text-[10px] ${isActive ? "text-white/70" : "text-slate-400"}`}>({count})</span>}
+                  </>
+                ) : (
+                  <>
+                    {cfg && <cfg.icon size={11} />}
+                    <span>{cfg?.label || s}</span>
+                    {count > 0 && <span className={`text-[10px] ${isActive ? "text-white/70" : "text-slate-400"}`}>({count})</span>}
+                  </>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
 
