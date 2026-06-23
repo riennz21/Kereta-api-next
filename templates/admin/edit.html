@@ -1,0 +1,81 @@
+{% extends "admin/base.html" %}
+{% block title %}Edit Kereta | KERETA.ID{% endblock %}
+{% block page_title %}Edit Data Kereta{% endblock %}
+
+{% block content %}
+<div class="container">
+    <form method="POST" enctype="multipart/form-data" class="form-kereta">
+        <div class="form-group">
+            <label>Nama Kereta</label>
+            <input type="text" name="nama" value="{{ data['nama'] }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Asal</label>
+            <input type="text" name="asal" value="{{ data['asal'] }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Tujuan</label>
+            <input type="text" name="tujuan" value="{{ data['tujuan'] }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Kelas</label>
+            <select name="kelas" id="kelas" onchange="aturHarga()" required>
+                <option value="Ekonomi" {{ 'selected' if data['kelas']=='Ekonomi' else '' }}>Ekonomi</option>
+                <option value="Bisnis" {{ 'selected' if data['kelas']=='Bisnis' else '' }}>Bisnis</option>
+                <option value="Eksekutif" {{ 'selected' if data['kelas']=='Eksekutif' else '' }}>Eksekutif</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Harga</label>
+            <input type="number" name="harga" id="harga" min="0" value="{{ data['harga'] or 0 }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Tanggal</label>
+            <input type="date" name="tanggal" value="{{ data['tanggal'] }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Jam</label>
+            <input type="time" name="jam" value="{{ data['jam'] }}" required>
+        </div>
+
+        <div class="form-group">
+            <label>Status</label>
+            <select name="status" required>
+                <option value="On Time" {{ 'selected' if (data['status'] or '') == 'On Time' else '' }}>On Time</option>
+                <option value="Delay" {{ 'selected' if (data['status'] or '') == 'Delay' else '' }}>Delay</option>
+                <option value="Dibatalkan" {{ 'selected' if (data['status'] or '') == 'Dibatalkan' else '' }}>Dibatalkan</option>
+            </select>
+        </div>
+
+        <div class="form-group full">
+            <label>Gambar Saat Ini</label>
+            {% if data["gambar"] %}
+                <img src="{{ url_for('train_image', filename=data['gambar']) }}" class="preview" alt="Gambar {{ data['nama'] }}">
+            {% else %}
+                <div class="no-image preview">Tidak ada gambar</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group full">
+            <label>Ganti Gambar (Opsional)</label>
+            <input type="file" name="gambar" accept="image/*">
+        </div>
+
+        <div class="form-group full">
+            <label>Deskripsi</label>
+            <textarea name="deskripsi" rows="4">{{ data["deskripsi"] }}</textarea>
+        </div>
+
+        <div class="form-actions full">
+            <button type="submit" class="btn-primary">Update</button>
+            <a href="{{ url_for('admin_data_kereta') }}" class="btn-secondary">Kembali</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

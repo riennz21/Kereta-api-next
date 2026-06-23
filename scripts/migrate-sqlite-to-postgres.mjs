@@ -19,6 +19,7 @@ console.log("📂 Membaca data dari SQLite...\n");
 
 // ── Buat tabel kereta ──────────────────────────────────────────
 console.log("📦 Migrasi tabel: kereta");
+
 await pool.query(`
   CREATE TABLE IF NOT EXISTS kereta (
     id SERIAL PRIMARY KEY,

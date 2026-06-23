@@ -1,0 +1,266 @@
+{% extends "admin/base.html" %}
+{% block title %}Dashboard | KERETA.ID{% endblock %}
+{% block page_title %}Dashboard Admin{% endblock %}
+{% block topbar_actions %}
+    <a href="{{ url_for('admin_tambah') }}" class="btn-primary">+ Tambah Kereta</a>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .search-container {
+        margin: 20px 0;
+        display: flex;
+        gap: 10px;
+    }
+
+    .search-input {
+        padding: 10px 15px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        width: 400px;
+        font-size: 16px;
+    }
+
+    .search-btn {
+        padding: 10px 20px;
+        background-color: #1e90ff;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+    .reset-btn {
+        padding: 10px 20px;
+        background-color: #6b7280;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        display: inline-flex;
+        align-items: center;
+        font-size: 16px;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 15px;
+        margin-bottom: 30px;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .stat-number {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 8px;
+    }
+
+    .stat-label {
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+    .class-stat {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-stat {
+        background: #fce7f3;
+        color: #9d174d;
+    }
+
+    .filter-container {
+        margin-bottom: 20px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .filter-group label {
+        font-size: 12px;
+        color: #6b7280;
+    }
+
+    .filter-group select, .filter-group input {
+        padding: 8px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        min-width: 150px;
+    }
+
+    .badge {
+        padding: 4px 8px;
+        border-radius: 12px;
+        color: white;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .badge.ekonomi {
+        background: #059669;
+    }
+
+    .badge.bisnis {
+        background: #6366f1;
+    }
+
+    .badge.eksekutif {
+        background: #dc2626;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="filter-container">
+    <form method="GET" action="{{ url_for('admin_dashboard') }}">
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div class="filter-group">
+                <label>Cari</label>
+                <input type="text" name="search" placeholder="Nama, asal, tujuan..."
+                       value="{{ search_query or '' }}" class="search-input">
+            </div>
+            <div class="filter-group">
+                <label>Kelas</label>
+                <select name="kelas">
+                    <option value="">Semua Kelas</option>
+                    <option value="Ekonomi" {% if request.args.get('kelas') == 'Ekonomi' %}selected{% endif %}>Ekonomi</option>
+                    <option value="Bisnis" {% if request.args.get('kelas') == 'Bisnis' %}selected{% endif %}>Bisnis</option>
+                    <option value="Eksekutif" {% if request.args.get('kelas') == 'Eksekutif' %}selected{% endif %}>Eksekutif</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status</label>
+                <select name="status">
+                    <option value="">Semua Status</option>
+                    <option value="On Time" {% if request.args.get('status') == 'On Time' %}selected{% endif %}>On Time</option>
+                    <option value="Delay" {% if request.args.get('status') == 'Delay' %}selected{% endif %}>Delay</option>
+                    <option value="Dibatalkan" {% if request.args.get('status') == 'Dibatalkan' %}selected{% endif %}>Dibatalkan</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Harga</label>
+                <div style="display: flex; gap: 5px;">
+                    <input type="number" name="min_price" placeholder="Min"
+                           value="{{ request.args.get('min_price', '') }}" style="width: 80px;">
+                    <span>-</span>
+                    <input type="number" name="max_price" placeholder="Max"
+                           value="{{ request.args.get('max_price', '') }}" style="width: 80px;">
+                </div>
+            </div>
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <button type="submit" class="search-btn">Filter</button>
+            </div>
+            {% if search_query or request.args.get('kelas') or request.args.get('status') or request.args.get('min_price') or request.args.get('max_price') %}
+            <div class="filter-group">
+                <label>&nbsp;</label>
+                <a href="{{ url_for('admin_dashboard') }}" class="reset-btn">Reset</a>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Kereta</div>
+        <div class="stat-number">{{ stats.total }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">On Time</div>
+        <div class="stat-number" style="color: #16a34a;">{{ stats.on_time }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Delay</div>
+        <div class="stat-number" style="color: #dc2626;">{{ stats.delay }}</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Dibatalkan</div>
+        <div class="stat-number" style="color: #6b7280;">{{ stats.dibatalkan }}</div>
+    </div>
+</div>
+
+<!-- Class Statistics -->
+<div class="stats-grid">
+    {% set class_counts = {} %}
+    {% for k in data %}
+        {% set class_name = k["kelas"] %}
+        {% if class_name %}
+            {% if class_counts.update({class_name: (class_counts.get(class_name) or 0) + 1}) %}{% endif %}
+        {% endif %}
+    {% endfor %}
+
+    {% for class_name, count in class_counts.items() %}
+    <div class="stat-card class-stat">
+        <div class="stat-label">{{ class_name }}</div>
+        <div class="stat-number">{{ count }}</div>
+    </div>
+    {% endfor %}
+</div>
+
+<section class="table-container">
+    <table>
+        <thead>
+            <tr>
+                <th>Foto</th>
+                <th>Kereta</th>
+                <th>Rute</th>
+                <th>Kelas</th>
+                <th>Jadwal</th>
+                <th>Status</th>
+                <th>Harga</th>
+                <th>Aksi</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for k in data %}
+            <tr>
+                <td>
+                    {% if k["gambar"] %}
+                        <img src="{{ url_for('train_image', filename=k['gambar']) }}" alt="Foto {{ k['nama'] }}">
+                    {% else %}
+                        <div class="no-image">-</div>
+                    {% endif %}
+                </td>
+                <td>
+                    <strong>{{ k["nama"] }}</strong><br>
+                    <small>{{ k["deskripsi"] }}</small>
+                </td>
+                <td>{{ k["asal"] }} → {{ k["tujuan"] }}</td>
+                <td>
+                    <span class="badge {{ (k['kelas'] or '')|lower }}">
+                        {{ k["kelas"] }}
+                    </span>
+                </td>
+                <td>{{ k["tanggal"] }}<br>{{ k["jam"] }}</td>
+                <td>
+                    <span class="badge {{ (k['status'] or '')|lower|replace(' ', '-') }}">
+                        {{ k["status"] }}
+                    </span>
+                </td>
+                <td>Rp {{ "{:,}".format((k["harga"] or 0)|int) }}</td>
+                <td>
+                    <a href="{{ url_for('admin_edit', id=k['id']) }}" class="btn-edit">Edit</a>
+                    <a href="{{ url_for('admin_hapus', id=k['id']) }}" class="btn-delete" onclick="return confirm('Hapus data?')">Hapus</a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
