@@ -9,8 +9,24 @@ import {
 } from "recharts";
 import { formatCurrency } from "../../lib/train-utils";
 
+function normalizeDateKey(value) {
+  if (!value) return "";
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+  const text = String(value);
+  const match = text.match(/^\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : "";
+}
+
 function formatDateLabel(tanggal) {
-  const d = new Date(tanggal + "T00:00:00");
+  const dateKey = normalizeDateKey(tanggal);
+  if (!dateKey) return "-";
+  const d = new Date(`${dateKey}T00:00:00`);
+  if (Number.isNaN(d.getTime())) return "-";
   return d.toLocaleDateString("id-ID", { weekday: "short", day: "numeric", month: "short" });
 }
 
@@ -31,7 +47,12 @@ function CustomTooltip({ active, payload, label }) {
 export default function KeuanganChart({ data }) {
   if (!data || data.length === 0) return null;
 
-  const sorted = [...data].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+  const sorted = data
+    .map((item) => ({ ...item, tanggal: normalizeDateKey(item.tanggal) }))
+    .filter((item) => item.tanggal)
+    .sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+
+  if (sorted.length === 0) return null;
 
   return (
     <div className="table-card">

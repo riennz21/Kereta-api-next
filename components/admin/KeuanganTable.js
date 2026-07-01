@@ -19,10 +19,19 @@ const STATUS_CONFIG = {
   cancelled: { label: "Dibatalkan", badge: "bg-red-50 text-red-700 border border-red-200", icon: XCircle },
 };
 
+function toDate(value) {
+  if (!value) return null;
+  if (value instanceof Date) return Number.isNaN(value.getTime()) ? null : value;
+  const text = String(value);
+  const date = text.includes("T") || text.includes(" ")
+    ? new Date(text.replace(" ", "T"))
+    : new Date(`${text}T00:00:00`);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function formatDate(tanggal_pembelian) {
-  const d = new Date(
-    tanggal_pembelian + (tanggal_pembelian && tanggal_pembelian.includes("T") ? "" : "T00:00:00"),
-  );
+  const d = toDate(tanggal_pembelian);
+  if (!d) return "-";
   return d.toLocaleDateString("id-ID", {
     year: "numeric",
     month: "short",
@@ -33,9 +42,8 @@ function formatDate(tanggal_pembelian) {
 }
 
 function formatDateShort(tanggal_pembelian) {
-  const d = new Date(
-    tanggal_pembelian + (tanggal_pembelian && tanggal_pembelian.includes("T") ? "" : "T00:00:00"),
-  );
+  const d = toDate(tanggal_pembelian);
+  if (!d) return "-";
   return d.toLocaleDateString("id-ID", { year: "numeric", month: "short", day: "numeric" });
 }
 

@@ -28,10 +28,37 @@ const STATUS_CONFIG = {
   cancelled: { label: "Dibatalkan", badge: "bg-red-50 text-red-700 border border-red-200", icon: XCircle },
 };
 
+function normalizeDateKey(value) {
+  if (!value) return "";
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, "0");
+    const day = String(value.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  }
+  const text = String(value);
+  const match = text.match(/^\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : "";
+}
+
+function formatDateLabel(value, options) {
+  const dateKey = normalizeDateKey(value);
+  if (!dateKey) return "-";
+  const date = new Date(`${dateKey}T00:00:00`);
+  if (Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("id-ID", options);
+}
+
 function MiniBarChart({ data, height = 140 }) {
   if (!data || data.length === 0) return null;
 
-  const sorted = [...data].sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+  const sorted = data
+    .map((item) => ({ ...item, tanggal: normalizeDateKey(item.tanggal) }))
+    .filter((item) => item.tanggal)
+    .sort((a, b) => a.tanggal.localeCompare(b.tanggal));
+
+  if (sorted.length === 0) return null;
+
   const maxVal = Math.max(...sorted.map((d) => d.pendapatan), 1);
   const barWidth = Math.max(16, Math.min(40, 300 / sorted.length));
   const isLong = sorted.length > 14;
@@ -42,7 +69,7 @@ function MiniBarChart({ data, height = 140 }) {
       paddingBottom: 6,
       gap: 2,
     }}>
-      {sorted.map((day, i) => {
+      {sorted.map((day) => {
         const h = Math.max(3, (day.pendapatan / maxVal) * height);
         return (
           <div key={day.tanggal} className="chart-bar-item" style={{ minWidth: barWidth, maxWidth: barWidth }}>
@@ -57,7 +84,7 @@ function MiniBarChart({ data, height = 140 }) {
               title={`${day.tanggal}: ${formatCurrency(day.pendapatan)}`}
             />
             <span className="chart-bar-label" style={{ fontSize: isLong ? 7 : 9, marginTop: 2 }}>
-              {new Date(day.tanggal + "T00:00:00").toLocaleDateString("id-ID", {
+              {formatDateLabel(day.tanggal, {
                 weekday: isLong ? undefined : "short",
                 day: "numeric",
                 month: isLong ? undefined : "short",
