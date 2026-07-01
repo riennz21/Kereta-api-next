@@ -8,7 +8,6 @@ import {
 } from "lucide-react";
 import PublicLayout from "../components/public/PublicLayout";
 import { formatCurrency } from "../lib/train-utils";
-import QRCode from "qrcode";
 
 const STATUS_CONFIG = {
   paid: { label: "Lunas", badge: "bg-emerald-50 text-emerald-700 border border-emerald-200", icon: CheckCircle },
@@ -21,16 +20,24 @@ function RealQRCode({ value, size = 180 }) {
 
   useEffect(() => {
     let cancelled = false;
-    QRCode.toDataURL(value, {
-      width: size * 2,
-      margin: 1,
-      color: { dark: "#0f172a", light: "#ffffff" },
-      errorCorrectionLevel: "M",
-    })
-      .then((url) => {
+
+    async function generateCode() {
+      try {
+        const qrCodeModule = await import("qrcode");
+        const qrCode = qrCodeModule.default || qrCodeModule;
+        const url = await qrCode.toDataURL(value, {
+          width: size * 2,
+          margin: 1,
+          color: { dark: "#0f172a", light: "#ffffff" },
+          errorCorrectionLevel: "M",
+        });
         if (!cancelled) setDataUrl(url);
-      })
-      .catch(() => {});
+      } catch {
+        // The ticket still renders without the QR image if generation fails.
+      }
+    }
+
+    generateCode();
     return () => { cancelled = true; };
   }, [value, size]);
 

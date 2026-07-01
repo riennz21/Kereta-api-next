@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import dynamic from "next/dynamic";
 import {
   CheckCircle,
   XCircle,
@@ -9,10 +10,14 @@ import AdminLayout from "../../components/admin/AdminLayout";
 import MetricGrid from "../../components/ui/MetricGrid";
 import Pagination from "../../components/public/Pagination";
 import DbError from "../../components/ui/DbError";
-import KeuanganChart from "../../components/admin/KeuanganChart";
 import KeuanganTable from "../../components/admin/KeuanganTable";
 import { requireAdminPage } from "../../lib/page-auth";
 import { formatCurrency } from "../../lib/train-utils";
+
+const KeuanganChart = dynamic(() => import("../../components/admin/KeuanganChart"), {
+  ssr: false,
+  loading: () => null,
+});
 
 const PERIOD_LABELS = {
   today: "Hari Ini",
