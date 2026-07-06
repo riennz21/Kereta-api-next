@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Link from "next/link";
-import { STATIONS } from "../../lib/constants";
 import { useBooking } from "../../lib/booking-context";
 
 export default function BookingForm() {
@@ -52,17 +51,15 @@ export default function BookingForm() {
             <div className="route-fields">
               <div className="route-field-group">
                 <label className="booking-label">Stasiun Asal</label>
-                <select
+                <input
+                  type="text"
                   value={booking.asal}
                   onChange={(e) => updateField("asal", e.target.value)}
                   className="input-control route-select"
+                  placeholder="Ketik stasiun asal"
+                  autoComplete="off"
                   required
-                >
-                  <option value="">Pilih stasiun asal</option>
-                  {STATIONS.filter((s) => s !== booking.tujuan).map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                />
               </div>
 
               <button type="button" className="swap-btn" onClick={swapRoute} title="Tukar rute" aria-label="Tukar rute">
@@ -76,17 +73,15 @@ export default function BookingForm() {
 
               <div className="route-field-group">
                 <label className="booking-label">Stasiun Tujuan</label>
-                <select
+                <input
+                  type="text"
                   value={booking.tujuan}
                   onChange={(e) => updateField("tujuan", e.target.value)}
                   className="input-control route-select"
+                  placeholder="Ketik stasiun tujuan"
+                  autoComplete="off"
                   required
-                >
-                  <option value="">Pilih stasiun tujuan</option>
-                  {STATIONS.filter((s) => s !== booking.asal).map((s) => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
-                </select>
+                />
               </div>
             </div>
 
@@ -148,7 +143,7 @@ export default function BookingForm() {
             </button>
 
             {!canSearch && (
-              <p className="booking-hint">Pilih stasiun asal dan tujuan untuk mencari tiket.</p>
+              <p className="booking-hint">Ketik stasiun asal dan tujuan untuk mencari tiket.</p>
             )}
           </form>
         ) : (
