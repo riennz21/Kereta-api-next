@@ -1,40 +1,5 @@
-import { Train, Clock, AlertTriangle, ListChecks, ArrowRight } from "lucide-react";
-
-const TRAIN_STATUSES = [
-  { id: 1, name: "Airlangga", status: "On Time" },
-  { id: 2, name: "Argo Bromo Anggrek", status: "Dibatalkan" },
-  { id: 3, name: "Logawa", status: "On Time" },
-  { id: 4, name: "Mutiara Selatan", status: "Delay" },
-  { id: 5, name: "Taksaka", status: "On Time" },
-  { id: 6, name: "Bima", status: "On Time" },
-];
-
-const statCards = [
-  {
-    label: "On Time",
-    value: "3",
-    sub: "Perjalanan tepat waktu",
-    bg: "bg-gradient-to-br from-[#e4f8ee] to-[#f2fcf7]",
-    text: "text-green",
-    icon: Clock,
-  },
-  {
-    label: "Delay / Batal",
-    value: "1/3",
-    sub: "Perlu perhatian penumpang",
-    bg: "bg-gradient-to-br from-[#ffeeec] to-[#fff7f6]",
-    text: "text-red",
-    icon: AlertTriangle,
-  },
-  {
-    label: "Total Kereta",
-    value: "7",
-    sub: "Semua kereta terdaftar",
-    bg: "bg-gradient-to-br from-navy to-[#173b64]",
-    text: "text-white",
-    icon: ListChecks,
-  },
-];
+import { useState, useEffect } from "react";
+import { Train, Clock, AlertTriangle, ListChecks, ArrowRight, Loader2 } from "lucide-react";
 
 function getStatusStyle(status) {
   switch (status) {
@@ -62,6 +27,67 @@ function getStatusStyle(status) {
 }
 
 export default function StatusPanel() {
+  const [statuses, setStatuses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchStatuses = async () => {
+      try {
+        const res = await fetch("/api/statuses");
+        if (!res.ok) throw new Error("Gagal memuat status");
+        const data = await res.json();
+        setStatuses(data || []);
+      } catch {
+        setStatuses([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStatuses();
+  }, []);
+
+  const ontimeCount = statuses.filter((s) => (s.status || "").toLowerCase() === "on time").length;
+  const delayCount = statuses.filter((s) => (s.status || "").toLowerCase() === "delay").length;
+  const dibatalkanCount = statuses.filter((s) => (s.status || "").toLowerCase() === "dibatalkan").length;
+
+  const statCards = [
+    {
+      label: "On Time",
+      value: String(ontimeCount),
+      sub: "Perjalanan tepat waktu",
+      bg: "bg-gradient-to-br from-[#e4f8ee] to-[#f2fcf7]",
+      text: "text-green",
+      icon: Clock,
+    },
+    {
+      label: "Delay / Batal",
+      value: `${delayCount}/${dibatalkanCount}`,
+      sub: "Perlu perhatian penumpang",
+      bg: "bg-gradient-to-br from-[#ffeeec] to-[#fff7f6]",
+      text: "text-red",
+      icon: AlertTriangle,
+    },
+    {
+      label: "Total Kereta",
+      value: String(statuses.length),
+      sub: "Semua kereta terdaftar",
+      bg: "bg-gradient-to-br from-navy to-[#173b64]",
+      text: "text-white",
+      icon: ListChecks,
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-5">
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-8 text-center border border-[rgba(186,151,113,0.12)]">
+          <Loader2 size={28} className="animate-spin text-[#4f46e5] mx-auto mb-2" />
+          <p className="text-sm font-semibold text-[#667085]">Memuat status kereta...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5">
       {/* Mini Stats Cards */}
@@ -95,41 +121,48 @@ export default function StatusPanel() {
       </div>
 
       {/* Live Train Cards */}
-      <div className="grid grid-cols-2 gap-3">
-        {TRAIN_STATUSES.map((train) => {
-          const style = getStatusStyle(train.status);
-          return (
-            <div
-              key={train.id}
-              className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 flex flex-col items-center gap-3 border border-[rgba(186,151,113,0.12)] shadow-[0_8px_16px_rgba(15,39,67,0.06)] hover:shadow-[0_12px_24px_rgba(15,39,67,0.10)] transition-all duration-200 hover:-translate-y-0.5"
-            >
-              {/* Train Icon */}
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[rgba(243,112,33,0.12)] to-[rgba(15,39,67,0.08)] flex items-center justify-center text-navy">
-                <Train size={28} />
-              </div>
-
-              {/* Train Name */}
-              <div className="text-center min-w-0 w-full">
-                <div className="text-sm font-bold text-[#101828] truncate">
-                  {train.name}
+      {statuses.length === 0 ? (
+        <div className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 text-center border border-[rgba(186,151,113,0.12)]">
+          <Train size={28} className="text-[#98a2b3] mx-auto mb-2" />
+          <p className="text-sm font-semibold text-[#667085]">Belum ada data kereta.</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          {statuses.map((train) => {
+            const style = getStatusStyle(train.status);
+            return (
+              <div
+                key={train.id}
+                className="bg-white/90 backdrop-blur-sm rounded-2xl p-4 flex flex-col items-center gap-3 border border-[rgba(186,151,113,0.12)] shadow-[0_8px_16px_rgba(15,39,67,0.06)] hover:shadow-[0_12px_24px_rgba(15,39,67,0.10)] transition-all duration-200 hover:-translate-y-0.5"
+              >
+                {/* Train Icon */}
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[rgba(79,70,229,0.12)] to-[rgba(99,102,241,0.08)] flex items-center justify-center text-indigo-600">
+                  <Train size={28} />
                 </div>
+
+                {/* Train Name */}
+                <div className="text-center min-w-0 w-full">
+                  <div className="text-sm font-bold text-[#101828] truncate">
+                    {train.nama}
+                  </div>
+                </div>
+
+                {/* Status Badge */}
+                <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${style.badge}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+                  {train.status}
+                </span>
+
+                {/* Action Button */}
+                <button className="w-full mt-1 py-2.5 px-3 rounded-xl bg-navy text-white text-xs font-bold hover:bg-[#173b64] transition-all duration-200 flex items-center justify-center gap-1.5">
+                  Lihat Detail Timeline
+                  <ArrowRight size={14} />
+                </button>
               </div>
-
-              {/* Status Badge */}
-              <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold ${style.badge}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
-                {train.status}
-              </span>
-
-              {/* Action Button */}
-              <button className="w-full mt-1 py-2.5 px-3 rounded-xl bg-navy text-white text-xs font-bold hover:bg-[#173b64] transition-all duration-200 flex items-center justify-center gap-1.5">
-                Lihat Detail Timeline
-                <ArrowRight size={14} />
-              </button>
-            </div>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

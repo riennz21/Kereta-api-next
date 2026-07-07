@@ -1,5 +1,7 @@
 import { useState } from "react";
 import Link from "next/link";
+import { ArrowRight, ArrowLeftRight, Search, Calendar, Users, CheckCircle } from "lucide-react";
+import { STATIONS } from "../../lib/constants";
 import { useBooking } from "../../lib/booking-context";
 
 export default function BookingForm() {
@@ -25,20 +27,14 @@ export default function BookingForm() {
           className={`booking-tab ${activeTab === "pesan" ? "active" : ""}`}
           onClick={() => setActiveTab("pesan")}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M5 12h14" />
-            <path d="M12 5l7 7-7 7" />
-          </svg>
+          <ArrowRight size={18} />
           Pesan Tiket
         </button>
         <button
           className={`booking-tab ${activeTab === "cekin" ? "active" : ""}`}
           onClick={() => setActiveTab("cekin")}
         >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-            <polyline points="9 11 12 14 22 4" />
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-          </svg>
+          <CheckCircle size={18} />
           Cek-In / Status
         </button>
       </div>
@@ -51,44 +47,48 @@ export default function BookingForm() {
             <div className="route-fields">
               <div className="route-field-group">
                 <label className="booking-label">Stasiun Asal</label>
-                <input
-                  type="text"
+                <select
                   value={booking.asal}
                   onChange={(e) => updateField("asal", e.target.value)}
                   className="input-control route-select"
-                  placeholder="Ketik stasiun asal"
                   autoComplete="off"
                   required
-                />
+                >
+                  <option value="">Pilih stasiun asal</option>
+                  {STATIONS.filter((s) => s !== booking.tujuan).map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
               </div>
 
               <button type="button" className="swap-btn" onClick={swapRoute} title="Tukar rute" aria-label="Tukar rute">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="17 1 21 5 17 9" />
-                  <path d="M3 11V9a4 4 0 0 1 4-4h14" />
-                  <polyline points="7 23 3 19 7 15" />
-                  <path d="M21 13v2a4 4 0 0 1-4 4H3" />
-                </svg>
+                <ArrowLeftRight size={18} />
               </button>
 
               <div className="route-field-group">
                 <label className="booking-label">Stasiun Tujuan</label>
-                <input
-                  type="text"
+                <select
                   value={booking.tujuan}
                   onChange={(e) => updateField("tujuan", e.target.value)}
                   className="input-control route-select"
-                  placeholder="Ketik stasiun tujuan"
                   autoComplete="off"
                   required
-                />
+                >
+                  <option value="">Pilih stasiun tujuan</option>
+                  {STATIONS.filter((s) => s !== booking.asal).map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
               </div>
             </div>
 
             {/* Date & Passengers */}
             <div className="booking-details">
               <div className="booking-detail-field">
-                <label className="booking-label">Tanggal Keberangkatan</label>
+                <label className="booking-label">
+                  <Calendar size={12} className="inline mr-1" />
+                  Tanggal Keberangkatan
+                </label>
                 <input
                   type="date"
                   value={booking.tanggal}
@@ -99,7 +99,10 @@ export default function BookingForm() {
               </div>
 
               <div className="booking-detail-field">
-                <label className="booking-label">Jumlah Penumpang</label>
+                <label className="booking-label">
+                  <Users size={12} className="inline mr-1" />
+                  Jumlah Penumpang
+                </label>
                 <div className="passenger-selector">
                   <button
                     type="button"
@@ -110,13 +113,7 @@ export default function BookingForm() {
                   >
                     &minus;
                   </button>
-                  <span className="passenger-value">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                      <circle cx="12" cy="7" r="4" />
-                    </svg>
-                    {booking.penumpang}
-                  </span>
+                  <span className="passenger-value">{booking.penumpang}</span>
                   <button
                     type="button"
                     className="passenger-btn"
@@ -132,13 +129,10 @@ export default function BookingForm() {
 
             <button
               type="submit"
-              className="btn btn-primary btn-search btn-booking-cta"
+              className="btn btn-primary btn-booking-cta"
               disabled={!canSearch}
             >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="11" cy="11" r="8" />
-                <path d="m21 21-4.35-4.35" />
-              </svg>
+              <Search size={18} />
               Cari Kereta
             </button>
 
@@ -149,13 +143,10 @@ export default function BookingForm() {
         ) : (
           <div className="cekin-panel">
             <div className="cekin-icon">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 11 12 14 22 4" />
-                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
-              </svg>
+              <CheckCircle size={48} />
             </div>
             <h3>Cek-In / Status Kereta</h3>
-            <p className="muted">Masukkan kode booking Anda untuk melakukan cek-in atau lihat status perjalanan.</p>
+            <p>Masukkan kode booking Anda untuk melakukan cek-in atau lihat status perjalanan.</p>
             <div className="cekin-input-group">
               <input
                 type="text"

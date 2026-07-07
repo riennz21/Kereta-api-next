@@ -7,8 +7,8 @@ export default function PageHeader({ eyebrow, title, description, actions, meta,
         {description ? <p className="page-description">{description}</p> : null}
         {meta?.length ? (
           <div className="page-meta">
-            {meta.map((item) => (
-              <span key={item} className="page-meta-pill">
+            {meta.map((item, i) => (
+              <span key={i} className="page-meta-pill">
                 {item}
               </span>
             ))}

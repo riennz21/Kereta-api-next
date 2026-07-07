@@ -8,33 +8,34 @@ module.exports = {
     extend: {
       colors: {
         brand: {
-          DEFAULT: "#f37021",
-          dark: "#c6520f",
-          soft: "#fff0e2",
+          DEFAULT: "#4f46e5",
+          dark: "#4338ca",
+          soft: "#eef2ff",
         },
         navy: {
-          DEFAULT: "#0f2743",
-          soft: "#173b64",
+          DEFAULT: "#0f172a",
+          soft: "#1e293b",
         },
-        cream: {
-          50: "#fffaf4",
-          100: "#fef9f3",
-          200: "#f8f1e8",
-          300: "#f3ece2",
-        },
-        surface: {
-          DEFAULT: "rgba(255, 255, 255, 0.9)",
-          solid: "#ffffff",
-          muted: "#f8f2eb",
+        accent: {
+          50: "#fffbeb",
+          100: "#fef3c7",
+          200: "#fde68a",
+          300: "#fcd34d",
+          400: "#fbbf24",
+          500: "#f59e0b",
+          600: "#d97706",
+          700: "#b45309",
+          800: "#92400e",
+          900: "#78350f",
         },
         green: {
-          DEFAULT: "#1f9d63",
+          DEFAULT: "#10b981",
         },
         red: {
-          DEFAULT: "#d74c3c",
+          DEFAULT: "#ef4444",
         },
         gold: {
-          DEFAULT: "#d7a43a",
+          DEFAULT: "#f59e0b",
         },
       },
       fontFamily: {
@@ -47,10 +48,37 @@ module.exports = {
         "4xl": "28px",
       },
       boxShadow: {
-        "brand-lg": "0 22px 45px rgba(15, 39, 67, 0.12)",
-        "brand-md": "0 12px 24px rgba(15, 39, 67, 0.09)",
-        "brand-sm": "0 8px 16px rgba(15, 39, 67, 0.06)",
-        "brand-orange": "0 14px 22px rgba(243, 112, 33, 0.22)",
+        "brand-lg": "0 20px 40px rgba(15, 23, 42, 0.10)",
+        "brand-md": "0 10px 20px rgba(15, 23, 42, 0.08)",
+        "brand-sm": "0 4px 12px rgba(15, 23, 42, 0.05)",
+        "brand-indigo": "0 10px 18px rgba(79, 70, 229, 0.20)",
+        "accent-lg": "0 20px 40px rgba(79, 70, 229, 0.12)",
+        "accent-md": "0 10px 20px rgba(79, 70, 229, 0.08)",
+        "accent-sm": "0 4px 12px rgba(79, 70, 229, 0.06)",
+      },
+      animation: {
+        "fade-in": "fade-in 0.3s ease-out",
+        "slide-up": "slide-up 0.3s ease-out",
+        "slide-down": "slide-down 0.2s ease-out",
+        "pulse-soft": "pulse-soft 2s ease-in-out infinite",
+      },
+      keyframes: {
+        "fade-in": {
+          "0%": { opacity: "0", transform: "translateY(8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-up": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "slide-down": {
+          "0%": { opacity: "0", transform: "translateY(-8px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
+        "pulse-soft": {
+          "0%, 100%": { boxShadow: "0 10px 18px rgba(79, 70, 229, 0.20)" },
+          "50%": { boxShadow: "0 12px 24px rgba(79, 70, 229, 0.30), 0 0 0 4px rgba(79, 70, 229, 0.10)" },
+        },
       },
     },
   },

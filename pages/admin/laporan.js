@@ -1,9 +1,10 @@
 import AdminLayout from "../../components/admin/AdminLayout";
 import MetricGrid from "../../components/ui/MetricGrid";
+import DbError, { getDbErrorMessage } from "../../components/ui/DbError";
 import { getReportSummary } from "../../lib/db";
 import { requireAdminPage } from "../../lib/page-auth";
 
-export default function AdminLaporanPage({ summary }) {
+export default function AdminLaporanPage({ summary, dbError }) {
   const total = summary.total || 0;
   const onTimeRate = total ? Math.round((summary.on_time / total) * 100) : 0;
   const disruptionRate = total ? Math.round(((summary.delay + summary.dibatalkan) / total) * 100) : 0;
@@ -20,6 +21,8 @@ export default function AdminLaporanPage({ summary }) {
       description="Ringkasan performa operasional untuk membantu melihat kualitas layanan dan potensi gangguan perjalanan."
       activePage="laporan"
     >
+      <DbError message={dbError} />
+
       <MetricGrid items={metricItems} className="admin-stats-grid" />
 
       <div className="report-grid">
@@ -45,9 +48,19 @@ export async function getServerSideProps(context) {
     return redirect;
   }
 
-  return {
-    props: {
-      summary: await getReportSummary(),
-    },
-  };
+  try {
+    return {
+      props: {
+        summary: await getReportSummary(),
+        dbError: null,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        summary: { total: 0, on_time: 0, delay: 0, dibatalkan: 0 },
+        dbError: getDbErrorMessage(err),
+      },
+    };
+  }
 }

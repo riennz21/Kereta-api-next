@@ -2,8 +2,21 @@ import TrainForm from "../../../components/admin/TrainForm";
 import AdminLayout from "../../../components/admin/AdminLayout";
 import { getTrainById } from "../../../lib/db";
 import { requireAdminPage } from "../../../lib/page-auth";
+import DbError, { getDbErrorMessage } from "../../../components/ui/DbError";
 
 export default function AdminEditPage({ train, error }) {
+  if (!train) {
+    return (
+      <AdminLayout
+        title="Edit Data Kereta"
+        description="Perbarui detail perjalanan"
+        activePage="kereta"
+      >
+        <DbError message={error} />
+      </AdminLayout>
+    );
+  }
+
   return (
     <AdminLayout
       title="Edit Data Kereta"
@@ -27,17 +40,28 @@ export async function getServerSideProps(context) {
     return redirect;
   }
 
-  const train = await getTrainById(Number(context.params.id));
-  if (!train) {
+  try {
+    const train = await getTrainById(Number(context.params.id));
+    if (!train) {
+      return {
+        notFound: true,
+      };
+    }
+
     return {
-      notFound: true,
+      props: {
+        train,
+        error: context.query.error || "",
+        dbError: null,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        train: null,
+        error: getDbErrorMessage(err),
+        dbError: getDbErrorMessage(err),
+      },
     };
   }
-
-  return {
-    props: {
-      train,
-      error: context.query.error || "",
-    },
-  };
 }

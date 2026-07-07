@@ -1,11 +1,12 @@
 import AdminLayout from "../../components/admin/AdminLayout";
 import StatusBadge from "../../components/StatusBadge";
 import EmptyState from "../../components/ui/EmptyState";
+import DbError, { getDbErrorMessage } from "../../components/ui/DbError";
 import MetricGrid from "../../components/ui/MetricGrid";
 import { getStatusRows } from "../../lib/db";
 import { requireAdminPage } from "../../lib/page-auth";
 
-export default function AdminStatusPage({ data }) {
+export default function AdminStatusPage({ data, dbError }) {
   const onTime = data.filter((row) => row.status === "On Time").length;
   const delay = data.filter((row) => row.status === "Delay").length;
   const cancelled = data.filter((row) => row.status === "Dibatalkan").length;
@@ -21,6 +22,8 @@ export default function AdminStatusPage({ data }) {
       description="Monitor status operasional untuk mengetahui kondisi kereta yang berjalan normal, terlambat, atau dibatalkan."
       activePage="status"
     >
+      <DbError message={dbError} />
+
       <MetricGrid items={metricItems} className="admin-stats-grid" />
 
       {data.length ? (
@@ -67,9 +70,19 @@ export async function getServerSideProps(context) {
     return redirect;
   }
 
-  return {
-    props: {
-      data: await getStatusRows(),
-    },
-  };
+  try {
+    return {
+      props: {
+        data: await getStatusRows(),
+        dbError: null,
+      },
+    };
+  } catch (err) {
+    return {
+      props: {
+        data: [],
+        dbError: getDbErrorMessage(err),
+      },
+    };
+  }
 }

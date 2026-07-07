@@ -5,6 +5,7 @@ import Pagination from "../../components/public/Pagination";
 import StatusBadge from "../../components/StatusBadge";
 import TrainClassBadge from "../../components/TrainClassBadge";
 import EmptyState from "../../components/ui/EmptyState";
+import DbError, { getDbErrorMessage } from "../../components/ui/DbError";
 import MetricGrid from "../../components/ui/MetricGrid";
 import { getAdminKeretaSummary } from "../../lib/db";
 import { requireAdminPage } from "../../lib/page-auth";
@@ -17,7 +18,7 @@ import {
   hasActiveFilters,
 } from "../../lib/train-utils";
 
-export default function AdminKeretaPage({ data, filters, summary, error }) {
+export default function AdminKeretaPage({ data, filters, summary, error, dbError }) {
   const queryValues = {
     search: filters.search,
     kelas: filters.kelas,
@@ -44,6 +45,7 @@ export default function AdminKeretaPage({ data, filters, summary, error }) {
       }
     >
       {error ? <div className="alert alert-error">{error}</div> : null}
+      <DbError message={dbError} />
 
       <MetricGrid items={metricItems} className="admin-stats-grid" />
 
@@ -85,7 +87,7 @@ export default function AdminKeretaPage({ data, filters, summary, error }) {
                 <tr key={train.id}>
                   <td>
                     {train.gambar ? (
-                      <img src={getImageUrl(train.gambar)} alt={`Foto ${train.nama}`} className="table-image" />
+                      <img loading="lazy" src={getImageUrl(train.gambar)} alt={`Foto ${train.nama}`} className="table-image" />
                     ) : (
                       <div className="table-image preview-empty">-</div>
                     )}
@@ -162,16 +164,30 @@ export async function getServerSideProps(context) {
     return redirect;
   }
 
-  const filters = getFiltersFromQuery(context.query);
-  const pagination = getAdminPagination(context.query);
-  const summary = await getAdminKeretaSummary(filters, pagination);
+  try {
+    const filters = getFiltersFromQuery(context.query);
+    const pagination = getAdminPagination(context.query);
+    const summary = await getAdminKeretaSummary(filters, pagination);
 
-  return {
-    props: {
-      data: summary.data,
-      filters,
-      summary,
-      error: context.query.error || "",
-    },
-  };
+    return {
+      props: {
+        data: summary.data,
+        filters,
+        summary,
+        error: context.query.error || "",
+        dbError: null,
+      },
+    };
+  } catch (err) {
+    const isDbError = err.message?.includes("DATABASE_UNAVAILABLE");
+    return {
+      props: {
+        data: [],
+        filters: getFiltersFromQuery({}),
+        summary: { data: [], total: 0, page: 1, totalPages: 1, startIndex: 0, endIndex: 0, stats: { total: 0, on_time: 0, delay: 0, dibatalkan: 0 } },
+        error: "",
+        dbError: getDbErrorMessage(err),
+      },
+    };
+  }
 }
